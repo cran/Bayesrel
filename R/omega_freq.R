@@ -1,137 +1,47 @@
 # gives freq omega, and loadings and errors
 #
 
-
-omegaFreqCov <- function(C){
-  p <- ncol(C)
-  file <- lavOneFile(C)
-  colnames(C) <- file$names
-  mod <- file$model
-  fit <- try(lavaan::cfa(mod, sample.cov = C, sample.nobs = 1e3))
-  params <- lavaan::standardizedsolution(fit)
-  load <- params$est.std[1:p]
-  resid <- params$est.std[(1+p) : (p*2)]
-  omega <- omegaBasic(load, resid)
-  return(list(omega = omega, loadings = load, errors = resid))
-}
-
-omegaFreqData <- function(data){
+omegaFreqData <- function(data, pairwise){
   p <- ncol(data)
   file <- lavOneFile(data)
   colnames(data) <- file$names
-  mod <- file$model
-  fit <- try(lavaan::cfa(mod, data))
 
-  params <- lavaan::standardizedsolution(fit)
-  load <- params$est.std[1:p]
-  resid <- params$est.std[(1+p) : (p*2)]
-  omega <- omegaBasic(load, resid)
-
-  load.low <- params$ci.lower[1:p]
-  resid.low <- params$ci.lower[(1+p) : (p*2)]
-  om.low <- omegaBasic(load.low, resid.low)
-  load.up <- params$ci.upper[1:p]
-  resid.up <- params$ci.upper[(1+p) : (p*2)]
-  om.up <- omegaBasic(load.up, resid.up)
-
-  fit.tmp <- lavaan::fitMeasures(fit)
-  indic <- c(fit.tmp["chisq"], fit.tmp["df"], fit.tmp["pvalue"],
-               fit.tmp["rmsea"], fit.tmp["rmsea.ci.lower"], fit.tmp["rmsea.ci.upper"],
-               fit.tmp["srmr"])
-
-  return(list(omega = omega, loadings = load, errors = resid,
-              omega.lower = om.low, omega.upper = om.up, indices = indic))
-}
-
-
-
-
-omegaFreq_MBESS <- function(data, estimator = "mlr", se = "default",
-                       missing = "ml", equal.loading = FALSE, equal.error = FALSE) {
-  colnames(data) <- lavOneFile(data)$names
-  varnames <- colnames(data)
-  q <- length(varnames)
-  N <- nrow(data)
-  if (equal.loading) {
-    loadingName <- rep("a1", q)
-  } else {
-    loadingName <- paste("a", 1:q, sep = "")
-  }
-  if (equal.error) {
-    errorName <- rep("b1", q)
-  } else {
-    errorName <- paste("b", 1:q, sep = "")
-  }
-  model <- paste0("f1 =~ NA*", varnames[1], " + ")
-  loadingLine <- paste(paste(loadingName, "*", varnames, sep = ""),
+  lam_names <- paste("l", 1:p, sep = "")
+  err_names <- paste("e", 1:p, sep = "")
+  model <- paste0("f1 =~ ")
+  loadings <- paste(paste(lam_names, "*", file$names, sep = ""),
                        collapse = " + ")
-  factorLine <- "f1 ~~ 1*f1\n"
-  errorLine <- paste(paste(varnames, " ~~ ", errorName, "*",
-                           varnames, sep = ""), collapse = "\n")
-  sumLoading <- paste("loading :=", paste(loadingName, collapse = " + "),
+  factors <- "f1 ~~ 1*f1\n"
+  errors <- paste(paste(file$names, " ~~ ", err_names, "*",
+                           file$names, sep = ""), collapse = "\n")
+  sum_loads <- paste("loading :=", paste(lam_names, collapse = " + "),
                       "\n")
-  sumError <- paste("error :=", paste(errorName, collapse = " + "),
+  sum_errs <- paste("error :=", paste(err_names, collapse = " + "),
                     "\n")
-  relia <- "relia := (loading^2) / ((loading^2) + error) \n"
-  model <- paste(model, loadingLine, "\n", factorLine, errorLine,
-                 "\n", sumLoading, sumError, relia)
+  omega <- "omega := (loading^2) / ((loading^2) + error) \n"
+  mod <- paste(model, loadings, "\n", factors, errors,
+                 "\n", sum_loads, sum_errs, omega)
 
-  e <- try(fit <- lavaan::cfa(model, data = data, missing = missing,
-                              se = se, estimator = estimator), silent = TRUE)
-  converged <- FALSE
-  if (is(e, "try-error")) {
-    converged <- FALSE
+  if (pairwise) {
+    fit <- try(lavaan::cfa(mod, data, std.lv = T, missing = "ML"), silent = TRUE)
   } else {
-    converged <- fit@Fit@converged
-    errorcheck <- diag(lavaan::inspect(fit, "se")$theta)
-    if (se != "none" && any(errorcheck <= 0))
-      converged <- FALSE
+    fit <- try(lavaan::cfa(mod, data, std.lv = T), silent = TRUE)
   }
-  if (converged) {
-    loading <- unique(as.vector(lavaan::inspect(fit, "coef")$lambda))
-    err.var <-  unique(as.vector(diag(lavaan::inspect(fit, "coef")$theta)))
-    error <- unique(diag(lavaan::inspect(fit, "se")$theta))
-    pe <- lavaan::parameterEstimates(fit)
-    fit.tmp <- lavaan::fitMeasures(fit)
-    indic <- c(fit.tmp["chisq"], fit.tmp["df"], fit.tmp["pvalue"],
-               fit.tmp["rmsea"], fit.tmp["rmsea.ci.lower"], fit.tmp["rmsea.ci.upper"],
-               fit.tmp["srmr"])
-    r <- which(pe[, "lhs"] == "relia")
-    u <- pe[which(pe[, "lhs"] == "loading"), "est"]
-    v <- pe[which(pe[, "lhs"] == "error"), "est"]
-    est <- pe[r, "est"]
-    if (se == "none") {
-      paramCov <- NULL
-      stderr <- NA
-    }
-    else {
-      paramCov <- lavaan::vcov(fit)
-      stderr <- pe[r, "se"]
-    }
-    if ("fmi" %in% colnames(pe)) {
-      fmi <- pe[, "fmi"]
-      N <- N * (1 - mean(fmi, na.rm = TRUE))
-    }
+  params <- try(lavaan::parameterestimates(fit), silent = TRUE)
+  if ("try-error" %in% class(params)) {
+    load <- resid <- omega <- om_low <- om_up <- fit_tmp <- indic <- NA
+  } else {
+    omega <- params$est[params$lhs=="omega"]
+    om_low <- params$ci.lower[params$lhs=="omega"]
+    om_up <- params$ci.upper[params$lhs=="omega"]
+
+
+    fit_tmp <- lavaan::fitMeasures(fit)
+    indic <- c(fit_tmp["chisq"], fit_tmp["df"], fit_tmp["pvalue"],
+               fit_tmp["rmsea"], fit_tmp["rmsea.ci.lower"], fit_tmp["rmsea.ci.upper"],
+               fit_tmp["srmr"])
   }
-  else {
-    loading <- NA
-    error <- NA
-    if (se == "none") {
-      paramCov <- NULL
-    }
-    else {
-      paramCov <- NA
-    }
-    u <- NA
-    v <- NA
-    est <- NA
-    stderr <- NA
-  }
-  result <- list(load = loading, error = error, vcov = paramCov, err.var = err.var,
-                 converged = converged, u = u, v = v, relia = est, se = stderr,
-                 effn = ceiling(N), indices = indic)
-  return(result)
+
+  return(list(omega = omega, omega_lower = om_low, omega_upper = om_up, indices = indic))
 }
-
-
 

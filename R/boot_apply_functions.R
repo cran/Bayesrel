@@ -8,59 +8,52 @@ applyalpha <- function(M){
   return(a)
 }
 
-applyl2 <- function(M){
+applylambda2 <- function(M){
   p <- ncol(M)
   M0 <- M
   diag(M0) <- 0
-  l2 <- (sum(M0) + sqrt(p/(p-1) * sum(M0^2))) / sum(M)
-  return(l2)
+  lambda2 <- (sum(M0) + sqrt(p/(p-1) * sum(M0^2))) / sum(M)
+  return(lambda2)
 }
 
-applyl4 <- function(M){
+applylambda4 <- function(M){
   if (ncol(M) < 15) {l4 <- MaxSplitExhaustive(M)}
   else {l4 <- quant.lambda4(M)}
   return(l4)
 }
 
 
-applyl6 <- function(M){
+applylambda6 <- function(M){
   M <- cov2cor(M)
   smc <- 1 - (1 / diag(solve(M)))
-  l6 <- 1 - (sum(1 - (smc)) / sum(M))
-  return(l6)
+  lambda6 <- 1 - (sum(1 - (smc)) / sum(M))
+  return(lambda6)
 }
 
+# applyglb <- function(M){
+#   gl <- glbOnArray(M)
+#   return(gl)
+# }
+
 applyglb <- function(M){
-  gl <- glb.algebraic2(M)$glb
+  gl <- glb.algebraic2(M)
   return(gl)
 }
 
-applyomega_cfa_cov <- function(C){
-  out <- omegaFreqCov(C)
-  om <- out$omega
-  return(om)
-}
-
-applyomega_cfa_data <- function(data){
-  out <- omegaFreqData(data)
+applyomega_cfa_data <- function(data, pairwise){
+  out <- omegaFreqData(data, pairwise)
   om <- out$omega
   return(om)
 }
 
 
-applyomega_pa <- function(m){
+applyomega_pfa <- function(m){
   f <- princFac(m)
-  l.fa <- f$loadings
-  er.fa <- f$err.var
-  om <- sum(l.fa)^2 / (sum(l.fa)^2 + sum(er.fa))
+  l_fa <- f$loadings
+  er_fa <- f$err_var
+  om <- sum(l_fa)^2 / (sum(l_fa)^2 + sum(er_fa))
   if (om < 0 || om > 1 || is.na(om)) om <- NA
   return(om)
-}
-
-
-omegaBasic <- function(l, e){
-  o <- sum(l)^2 / (sum(l)^2 + sum(e))
-  return(o)
 }
 
 

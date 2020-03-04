@@ -2,7 +2,7 @@
 \alias{cavalini}
 \docType{data}
 \title{
-8-Item Questionnaire Data from Cavalini
+8-Item Questionnaire Data from Cavalini (1992)
 }
 \description{
 A dataset consisting of eight item questionnaire data. It's likert scaled from 0-3.

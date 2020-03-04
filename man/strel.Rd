@@ -4,11 +4,22 @@
 \alias{strel}
 \title{calculate single test reliability estimates}
 \usage{
-strel(x, estimates = c("alpha", "lambda2", "glb", "omega"),
-  interval = 0.95, n.iter = 2000, n.burnin = 50, boot.n = 1000,
-  omega.freq.method = "cfa", omega.fit = FALSE, n.obs = NULL,
-  alpha.int.analytic = FALSE, bayes = TRUE, freq = TRUE,
-  para.boot = FALSE, prior.samp = FALSE, item.dropped = FALSE)
+strel(
+  x,
+  estimates = c("alpha", "lambda2", "glb", "omega"),
+  interval = 0.95,
+  n.iter = 1000,
+  n.burnin = 50,
+  n.boot = 1000,
+  omega.freq.method = "cfa",
+  n.obs = NULL,
+  alpha.int.analytic = FALSE,
+  freq = TRUE,
+  Bayes = TRUE,
+  para.boot = FALSE,
+  item.dropped = FALSE,
+  missing = "listwise"
+)
 }
 \arguments{
 \item{x}{A dataset or covariance matrix}
@@ -21,34 +32,33 @@ strel(x, estimates = c("alpha", "lambda2", "glb", "omega"),
 
 \item{n.burnin}{A number for the burnin in the Gibbs Sampler}
 
-\item{boot.n}{A number for the bootstrap samples}
+\item{n.boot}{A number for the bootstrap samples}
 
-\item{omega.freq.method}{A character string for the method of frequentist omega, either pfa or cfa}
-
-\item{omega.fit}{A logical for calculating the fit of the single factor model}
+\item{omega.freq.method}{A character string for the method of frequentist omega, either "pfa" or "cfa"}
 
 \item{n.obs}{A number for the sample observations when a covariance matrix is supplied and the factor model is calculated}
 
 \item{alpha.int.analytic}{A logical for calculating the alpha confidence interval analytically}
 
-\item{bayes}{A logical for calculating the Bayesian estimates}
-
 \item{freq}{A logical for calculating the frequentist estimates}
+
+\item{Bayes}{A logical for calculating the Bayesian estimates}
 
 \item{para.boot}{A logical for calculating the parametric bootstrap, the default is the non-parametric}
 
-\item{prior.samp}{A logical for calculating the prior distributions (necessary for plot functions)}
-
 \item{item.dropped}{A logical for calculating the if-item-dropped statistics}
+
+\item{missing}{A string specifying the way to handle missing data}
 }
 \description{
 calculate Bayesian and frequentist single test reliability measures.
 Reported are Bayesian credible intervals (HDI) and frequentist confidence intervals (non parametric or parametric bootstrap).
-The estimates supported are Cronbach alpha, lambda2/4/6, the glb, and Mcdonald omega.
+The estimates supported are Cronbach alpha, lambda2/4/6, the glb, and Mcdonald omega. Beware of lambda4 with many indicators,
+the computational effort is considerable
 }
 \examples{
-summary(strel(cavalini, estimates = "lambda2"))
-summary(strel(cavalini, estimates = "lambda2", item.dropped = TRUE))
+summary(strel(asrm, estimates = "lambda2"))
+summary(strel(asrm, estimates = "lambda2", item.dropped = TRUE))
 
 
 }

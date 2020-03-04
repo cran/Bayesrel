@@ -1,5 +1,5 @@
 # forces a quadratic matrix to be symmetrical
-make.symmetric <- function(a, lower.tri=TRUE){
+make_symmetric <- function(a, lower.tri=TRUE){
   if (lower.tri){
     ind <- upper.tri(a)
     a[ind] <- t(a)[ind]
@@ -36,8 +36,8 @@ ciAlpha <- function(palpha, n, V){
 }
 
 # does quantile averaging and returns 2000 datapoints
-quantiles <- function(samp){
-  q <- quantile(samp, probs = seq(0, 1, length.out = 2e3))
+quantiles <- function(samp, length_out = 2e3){
+  q <- quantile(samp, probs = seq(0, 1, length.out = length_out))
   return(q)
 }
 
@@ -59,12 +59,20 @@ lavOneFile <- function(data){
   }
   v <- paste0(v, collapse = "+")
   mod <- paste0("g=~", v) # dynamic lavaan model file
+  mod <- paste0(mod, "; g ~~ 1*g") # fix the factor variance to 1
 
   # column names specify
   names <- 0
   for(i in 1:p){
-    names[i] <- paste0("x",i)
+    names[i] <- paste0("x", i)
   }
   return(list(names = names, model = mod))
 }
 
+
+# calculate omega from loadings and residual (error variances)
+
+omegaBasic <- function(l, e){
+  o <- sum(l)^2 / (sum(l)^2 + sum(e))
+  return(o)
+}

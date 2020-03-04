@@ -4,144 +4,152 @@
 # and non-parametric bootstrapped confidence intervals, now calculated with SEs and z-values
 
 freqFun_nonpara <- function(data, boot.n, estimates, interval, omega.freq.method,
-                            item.dropped, alpha.int.analytic, omega.fit){
+                            item.dropped, alpha.int.analytic, pairwise = FALSE){
   p <- ncol(data)
   n <- nrow(data)
+  if (pairwise) {
+    cc <- cov(data, use = "pairwise.complete.obs")
+  } else {
+    cc <- cov(data)
+  }
   res <- list()
   res$covsamp <- NULL
   if ("alpha" %in% estimates || "lambda2" %in% estimates || "lambda4" %in% estimates || "lambda6" %in% estimates ||
-      "glb" %in% estimates || omega.freq.method == "pa"){
-    boot.data <- array(0, c(boot.n, n, p))
-    boot.cov <- array(0, c(boot.n, p, p))
+      "glb" %in% estimates || omega.freq.method == "pfa"){
+    boot_data <- array(0, c(boot.n, n, p))
+    boot_cov <- array(0, c(boot.n, p, p))
     for (i in 1:boot.n){
-      boot.data[i, , ] <- as.matrix(data[sample.int(nrow(data), size = n, replace = TRUE), ])
-      boot.cov[i, , ] <- cov(boot.data[i, , ])
+      boot_data[i, , ] <- as.matrix(data[sample.int(nrow(data), size = n, replace = TRUE), ])
+      if (pairwise) {
+        boot_cov[i, , ] <- cov(boot_data[i, , ], use = "pairwise.complete.obs")
+      } else {
+        boot_cov[i, , ] <- cov(boot_data[i, , ])
+      }
     }
-    res$covsamp <- boot.cov
+    res$covsamp <- boot_cov
   }
   if (item.dropped){
     Ctmp <- array(0, c(p, p - 1, p - 1))
     Dtmp <- array(0, c(p, n, p - 1))
     for (i in 1:p){
-      Ctmp[i, , ] <- cov(data)[-i, -i]
+      Ctmp[i, , ] <- cc[-i, -i]
       Dtmp[i, , ] <- data[, -i]
     }
   }
   if ("alpha" %in% estimates){
-    res$est$freq.alpha <- applyalpha(cov(data))
+    res$est$freq_alpha <- applyalpha(cc)
     if (alpha.int.analytic){
-      int <- ciAlpha(1 - interval, n, cov(data))
-      res$conf$low$freq.alpha <- int[1]
-      res$conf$up$freq.alpha <- int[2]
+      int <- ciAlpha(1 - interval, n, cc)
+      res$conf$low$freq_alpha <- int[1]
+      res$conf$up$freq_alpha <- int[2]
     } else{
-      alpha.obj <- apply(boot.cov, 1, applyalpha)
-      if (length(unique(round(alpha.obj, 4))) == 1){
-        res$conf$low$freq.alpha <- 1
-        res$conf$up$freq.alpha <- 1
+      alpha_obj <- apply(boot_cov, 1, applyalpha)
+      if (length(unique(round(alpha_obj, 4))) == 1){
+        res$conf$low$freq_alpha <- 1
+        res$conf$up$freq_alpha <- 1
       } else{
-        res$conf$low$freq.alpha <- quantile(alpha.obj, probs = (1 - interval)/2, na.rm = T)
-        res$conf$up$freq.alpha <- quantile(alpha.obj, probs = interval + (1 - interval)/2, na.rm = T)
-        # res$conf$low$freq.alpha <- res$est$freq.alpha - qnorm(1 - (1 - interval)/2) * se(alpha.obj)
-        # res$conf$up$freq.alpha <- res$est$freq.alpha + qnorm(1 - (1 - interval)/2) * se(alpha.obj)
+        res$conf$low$freq_alpha <- quantile(alpha_obj, probs = (1 - interval)/2, na.rm = T)
+        res$conf$up$freq_alpha <- quantile(alpha_obj, probs = interval + (1 - interval)/2, na.rm = T)
+        # res$conf$low$freq_alpha <- res$est$freq_alpha - qnorm(1 - (1 - interval)/2) * se(alpha_obj)
+        # res$conf$up$freq_alpha <- res$est$freq_alpha + qnorm(1 - (1 - interval)/2) * se(alpha_obj)
         }
-      res$boot$alpha <- alpha.obj
+      res$boot$alpha <- alpha_obj
     }
     if (item.dropped){
       res$ifitem$alpha <- apply(Ctmp, 1, applyalpha)
     }
   }
   if ("lambda2" %in% estimates){
-    res$est$freq.l2 <- applyl2(cov(data))
-    l2.obj <- apply(boot.cov, 1, applyl2)
-    if (length(unique(round(l2.obj, 4))) == 1){
-      res$conf$low$freq.l2 <- 1
-      res$conf$up$freq.l2 <- 1
+    res$est$freq_lambda2 <- applylambda2(cc)
+    lambda2_obj <- apply(boot_cov, 1, applylambda2)
+    if (length(unique(round(lambda2_obj, 4))) == 1){
+      res$conf$low$freq_lambda2 <- NA
+      res$conf$up$freq_lambda2 <- NA
     } else{
-      res$conf$low$freq.l2 <- quantile(l2.obj, probs = (1 - interval)/2, na.rm = T)
-      res$conf$up$freq.l2 <- quantile(l2.obj, probs = interval + (1 - interval)/2, na.rm = T)
+      res$conf$low$freq_lambda2 <- quantile(lambda2_obj, probs = (1 - interval)/2, na.rm = T)
+      res$conf$up$freq_lambda2 <- quantile(lambda2_obj, probs = interval + (1 - interval)/2, na.rm = T)
     }
-    res$boot$l2 <- l2.obj
+    res$boot$lambda2 <- lambda2_obj
     if (item.dropped){
-      res$ifitem$l2 <- apply(Ctmp, 1, applyl2)
+      res$ifitem$lambda2 <- apply(Ctmp, 1, applylambda2)
     }
   }
 
   if ("lambda4" %in% estimates){
-    res$est$freq.l4 <- applyl4(cov(data))
-    l4.obj <- apply(boot.cov, 1, applyl4)
-    if (length(unique(round(l4.obj, 4))) == 1){
-      res$conf$low$freq.l4 <- 1
-      res$conf$up$freq.l4 <- 1
+    res$est$freq_lambda4 <- applylambda4(cc)
+    lambda4_obj <- apply(boot_cov, 1, applylambda4)
+    if (length(unique(round(lambda4_obj, 4))) == 1){
+      res$conf$low$freq_lambda4 <- NA
+      res$conf$up$freq_lambda4 <- NA
     } else{
-      res$conf$low$freq.l4 <- quantile(l4.obj, probs = (1 - interval)/2, na.rm = T)
-      res$conf$up$freq.l4 <- quantile(l4.obj, probs = interval + (1 - interval)/2, na.rm = T)
+      res$conf$low$freq_lambda4 <- quantile(lambda4_obj, probs = (1 - interval)/2, na.rm = T)
+      res$conf$up$freq_lambda4 <- quantile(lambda4_obj, probs = interval + (1 - interval)/2, na.rm = T)
     }
-    res$boot$l4 <- l4.obj
+    res$boot$lambda4 <- lambda4_obj
     if (item.dropped){
-      res$ifitem$l4 <- apply(Ctmp, 1, applyl4)
+      res$ifitem$lambda4 <- apply(Ctmp, 1, applylambda4)
     }
   }
 
   if ("lambda6" %in% estimates){
-    res$est$freq.l6 <- applyl6(cov(data))
-    l6.obj <- apply(boot.cov, 1, applyl6)
-    if (length(unique(round(l6.obj, 4))) == 1){
-      res$conf$low$freq.l6 <- 1
-      res$conf$up$freq.l6 <- 1
+    res$est$freq_lambda6 <- applylambda6(cc)
+    lambda6_obj <- apply(boot_cov, 1, applylambda6)
+    if (length(unique(round(lambda6_obj, 4))) == 1){
+      res$conf$low$freq_lambda6 <- NA
+      res$conf$up$freq_lambda6 <- NA
     } else{
-      res$conf$low$freq.l6 <- quantile(l6.obj, probs = (1 - interval)/2, na.rm = T)
-      res$conf$up$freq.l6 <- quantile(l6.obj, probs = interval + (1 - interval)/2, na.rm = T)
+      res$conf$low$freq_lambda6 <- quantile(lambda6_obj, probs = (1 - interval)/2, na.rm = T)
+      res$conf$up$freq_lambda6 <- quantile(lambda6_obj, probs = interval + (1 - interval)/2, na.rm = T)
     }
-    res$boot$l6 <- l6.obj
+    res$boot$lambda6 <- lambda6_obj
     if (item.dropped){
-      res$ifitem$l6 <- apply(Ctmp, 1, applyl6)
+      res$ifitem$lambda6 <- apply(Ctmp, 1, applylambda6)
     }
   }
   if ("glb" %in% estimates){
-    res$est$freq.glb <- applyglb(cov(data))
-    glb.obj <- apply(boot.cov, 1, applyglb)
-    if (length(unique(round(glb.obj, 4))) == 1){
-      res$conf$low$freq.glb <- 1
-      res$conf$up$freq.glb <- 1
+    res$est$freq_glb <- glbOnArray(cc)
+    glb_obj <- glbOnArray(boot_cov)
+    if (length(unique(round(glb_obj, 4))) == 1){
+      res$conf$low$freq_glb <- NA
+      res$conf$up$freq_glb <- NA
     } else{
-      res$conf$low$freq.glb <- quantile(glb.obj, probs = (1 - interval)/2, na.rm = T)
-      res$conf$up$freq.glb <- quantile(glb.obj, probs = interval + (1 - interval)/2, na.rm = T)
+      res$conf$low$freq_glb <- quantile(glb_obj, probs = (1 - interval)/2, na.rm = T)
+      res$conf$up$freq_glb <- quantile(glb_obj, probs = interval + (1 - interval)/2, na.rm = T)
     }
-    res$boot$glb <- glb.obj
+    res$boot$glb <- glb_obj
     if (item.dropped){
-      res$ifitem$glb <- apply(Ctmp, 1, applyglb)
+      res$ifitem$glb <- glbOnArray(Ctmp)
     }
   }
 
   #omega --------------------------------------------------------------------------
   if ("omega" %in% estimates){
     if (omega.freq.method == "cfa"){
-      out <- omegaFreqData(data)
-      res$est$freq.omega <- out$omega
+      out <- omegaFreqData(data, pairwise)
+      res$est$freq_omega <- out$omega
       res$loadings <- out$loadings
-      res$resid.var <- out$errors
-      res$conf$low$freq.omega <- out$omega.low
-      res$conf$up$freq.omega <- out$omega.up
+      res$resid_var <- out$errors
+      res$conf$low$freq_omega <- out$omega_low
+      res$conf$up$freq_omega <- out$omega_up
+      res$omega_fit <- out$indices
 
-      if (omega.fit) {res$fit$omega <- out$indices}
       if (item.dropped){
-        res$ifitem$omega <- apply(Dtmp, 1, applyomega_cfa_data)
+        res$ifitem$omega <- apply(Dtmp, 1, applyomega_cfa_data, pairwise)
       }
-    }
-    if (omega.freq.method == "pa"){
-      res$est$freq.omega <- applyomega_pa(cov(data))
-      omega.obj <- apply(boot.cov, 1, applyomega_pa)
-      if (length(unique(round(omega.obj, 4))) == 1){
-        res$conf$low$freq.omega <- 1
-        res$conf$up$freq.omega <- 1
+    } else if (omega.freq.method == "pfa"){
+      res$est$freq_omega <- applyomega_pfa(cc)
+      omega_obj <- apply(boot_cov, 1, applyomega_pfa)
+      if (length(unique(round(omega_obj, 4))) == 1){
+        res$conf$low$freq_omega <- NA
+        res$conf$up$freq_omega <- NA
       }
       else{
-        res$conf$low$freq.omega <- quantile(omega.obj, probs = (1 - interval)/2, na.rm = T)
-        res$conf$up$freq.omega <- quantile(omega.obj, probs = interval + (1 - interval)/2, na.rm = T)
+        res$conf$low$freq_omega <- quantile(omega_obj, probs = (1 - interval)/2, na.rm = T)
+        res$conf$up$freq_omega <- quantile(omega_obj, probs = interval + (1 - interval)/2, na.rm = T)
       }
-      res$boot$omega <- omega.obj
+      res$boot$omega <- omega_obj
       if (item.dropped){
-        res$ifitem$omega <- apply(Ctmp, 1, applyomega_pa)
+        res$ifitem$omega <- apply(Ctmp, 1, applyomega_pfa)
       }
     }
   }

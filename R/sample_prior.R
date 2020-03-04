@@ -18,29 +18,29 @@ priorSamp <- function(p, estimates, n.samp = 2e3){
     out$prioralpha <- quantiles(priora[priora >= 0])
   }
   if ("lambda2" %in% estimates){
-    priorl2 <- apply(m, MARGIN = 1, applyl2)
-    out$priorlambda2 <- quantiles(priorl2[priorl2 >= 0])
+    priorlambda2 <- apply(m, MARGIN = 1, applylambda2)
+    out$priorlambda2 <- quantiles(priorlambda2[priorlambda2 >= 0])
   }
   if ("lambda4" %in% estimates){
-    priorl4 <- apply(m, MARGIN = 1, applyl4)
-    out$priorlambda4 <- quantiles(priorl4[priorl4 >= 0])
+    priorlambda4 <- apply(m, MARGIN = 1, applylambda4)
+    out$priorlambda4 <- quantiles(priorlambda4[priorlambda4 >= 0])
   }
   if ("lambda6" %in% estimates){
-    priorl6 <- apply(m, MARGIN = 1, applyl6)
-    out$priorlambda6 <- quantiles(priorl6[priorl6 >= 0])
+    priorlambda6 <- apply(m, MARGIN = 1, applylambda6)
+    out$priorlambda6 <- quantiles(priorlambda6[priorlambda6 >= 0])
   }
   if ("glb" %in% estimates){
     # control <- Rcsdp::csdp.control(printlevel = 0)
     # write.control.file(control)
-    priorglb <- apply(m, MARGIN = 1, applyglb)
+    priorglb <- glbOnArray(m)
     out$priorglb <- quantiles(priorglb[priorglb >= 0])
     # unlink("param.csdp")
   }
   if ("omega" %in% estimates){
-    H0 <- 2.5 # prior multiplier matrix for lambdas variance
+    H0 <- 1 # prior multiplier matrix for lambdas variance
     l0k <- rep(0, p) # prior lambdas
     a0k <- 1 # prior gamma function for psis
-    b0k <- .05 # prior gamma for psi
+    b0k <- 2 # prior gamma for psi
     prioromega <- numeric(n.samp)
     for (i in 1:n.samp){
       invpsi <- rgamma(p, a0k, b0k)

@@ -2,27 +2,27 @@
 #' calculate single test reliability estimates
 #' @description calculate Bayesian and frequentist single test reliability measures.
 #' Reported are Bayesian credible intervals (HDI) and frequentist confidence intervals (non parametric or parametric bootstrap).
-#' The estimates supported are Cronbach alpha, lambda2/4/6, the glb, and Mcdonald omega.
+#' The estimates supported are Cronbach alpha, lambda2/4/6, the glb, and Mcdonald omega. Beware of lambda4 with many indicators,
+#' the computational effort is considerable
 #'
 #' @param x A dataset or covariance matrix
 #' @param estimates A character vector containing the estimands, we recommend using lambda4 with only a few items due to the computation time
 #' @param interval A number specifying the uncertainty interval
 #' @param n.iter A number for the iterations of the Gibbs Sampler
 #' @param n.burnin A number for the burnin in the Gibbs Sampler
-#' @param boot.n A number for the bootstrap samples
-#' @param omega.freq.method A character string for the method of frequentist omega, either pfa or cfa
-#' @param omega.fit A logical for calculating the fit of the single factor model
+#' @param n.boot A number for the bootstrap samples
+#' @param omega.freq.method A character string for the method of frequentist omega, either "pfa" or "cfa"
 #' @param n.obs A number for the sample observations when a covariance matrix is supplied and the factor model is calculated
 #' @param alpha.int.analytic A logical for calculating the alpha confidence interval analytically
-#' @param bayes A logical for calculating the Bayesian estimates
 #' @param freq A logical for calculating the frequentist estimates
+#' @param Bayes A logical for calculating the Bayesian estimates
 #' @param para.boot A logical for calculating the parametric bootstrap, the default is the non-parametric
-#' @param prior.samp A logical for calculating the prior distributions (necessary for plot functions)
 #' @param item.dropped A logical for calculating the if-item-dropped statistics
+#' @param missing A string specifying the way to handle missing data
 #'
 #' @examples
-#' summary(strel(cavalini, estimates = "lambda2"))
-#' summary(strel(cavalini, estimates = "lambda2", item.dropped = TRUE))
+#' summary(strel(asrm, estimates = "lambda2"))
+#' summary(strel(asrm, estimates = "lambda2", item.dropped = TRUE))
 #'
 #'
 #' @references{
@@ -37,69 +37,77 @@
 #'
 #' @export
 strel <- function(x, estimates = c("alpha", "lambda2", "glb", "omega"),
-               interval = .95, n.iter = 2e3, n.burnin = 50, boot.n = 1000,
-               omega.freq.method = "cfa", omega.fit = FALSE,
+               interval = .95, n.iter = 1e3, n.burnin = 50, n.boot = 1000,
+               omega.freq.method = "cfa",
                n.obs = NULL, alpha.int.analytic = FALSE,
-               bayes = TRUE, freq = TRUE, para.boot = FALSE, prior.samp = FALSE,
-               item.dropped = FALSE) {
+               freq = TRUE, Bayes = TRUE,
+               para.boot = FALSE,
+               item.dropped = FALSE,
+               missing = "listwise") {
 
-  estimates <- match.arg(estimates, several.ok = T)
   default <- c("alpha", "lambda2", "lambda4", "lambda6", "glb", "omega")
+  # estimates <- match.arg(arg = estimates, several.ok = T)
   mat <- match(default, estimates)
   estimates <- estimates[mat]
   estimates <- estimates[!is.na(estimates)]
   p <- NULL
-  sum.res <- list()
-  sum.res$call <- match.call()
+  sum_res <- list()
+  sum_res$call <- match.call()
 
-  if (sum(is.na(x)) > 0) {
-    return("missing values in data detected, please remove and run again")
+  pairwise <- FALSE
+  if (any(is.na(x))) {
+    if (missing == "listwise") {
+      pos <- which(is.na(x), arr.ind = T)[, 1]
+      x <- x[-pos, ]
+      ncomp <- nrow(x)
+      sum_res$complete <- ncomp
+    }
+    else if (missing == "pairwise") {
+      pairwise = T
+      sum_res$miss_pairwise <- T
+    } else return("missing values in data detected, please remove and run again")
   }
   data <- NULL
   sigma <- NULL
   if (ncol(x) == nrow(x)){
-    if (is.null(n.obs)) {return("number of observations needs to be specified when entering a covariance matrix")}
+    if (is.null(n.obs) & "omega" %in% estimates) {
+      return("number of observations (n.obs) needs to be specified when entering a covariance matrix")}
     if (sum(x[lower.tri(x)] != t(x)[lower.tri(x)]) > 0) {return("input matrix is not symmetric")}
     if (sum(eigen(x)$values < 0) > 0) {return("input matrix is not positive definite")}
     sigma <- x
     data <- MASS::mvrnorm(n.obs, rep(0, ncol(sigma)), sigma, empirical = TRUE)
   } else{
     data <- scale(x, scale = F)
-    sigma <- cov(data)
+    # sigma <- cov(data)
   }
 
-  # if("glb" %in% estimates){
-  #   control <- Rcsdp::csdp.control(printlevel = 0)
-  #   write.control.file(control)
-  # }
-  if (bayes){
-    sum.res$bay <- gibbsFun(data, n.iter, n.burnin, estimates, interval, item.dropped, omega.fit)
+  if (omega.freq.method != "cfa" & omega.freq.method != "pfa") {
+    return("enter a valid omega method, either 'cfa' or 'pfa'")}
+
+  if (Bayes) {
+    sum_res$Bayes <- gibbsFun(data, n.iter, n.burnin, estimates, interval, item.dropped, pairwise)
   }
-  if (omega.fit) {omega.freq.method <- "cfa"}
+
+
   if(freq){
     if (para.boot){
-      sum.res$freq <- freqFun_para(data, boot.n, estimates, interval, omega.freq.method, item.dropped,
-                                   alpha.int.analytic, omega.fit)
+      sum_res$freq <- freqFun_para(data, n.boot, estimates, interval, omega.freq.method, item.dropped,
+                                   alpha.int.analytic, pairwise)
     } else{
-      sum.res$freq <- freqFun_nonpara(data, boot.n, estimates, interval, omega.freq.method, item.dropped,
-                                    alpha.int.analytic, omega.fit)
+      sum_res$freq <- freqFun_nonpara(data, n.boot, estimates, interval, omega.freq.method, item.dropped,
+                                    alpha.int.analytic, pairwise)
     }
-    sum.res$omega.freq.method <- omega.freq.method
+    sum_res$omega.freq.method <- omega.freq.method
   }
 
-  # if("glb" %in% estimates)
-  #   unlink("param.csdp")
 
-  if (prior.samp) {
-    sum.res$priors <- priorSamp(ncol(data), estimates)
-  }
+  sum_res$estimates <- estimates
+  sum_res$n.iter <- n.iter
+  sum_res$n.burnin <- n.burnin
+  sum_res$interval <- interval
+  sum_res$data <- data
+  sum_res$n.boot <- n.boot
 
-  sum.res$estimates <- estimates
-  sum.res$n.iter <- n.iter
-  sum.res$n.burnin <- n.burnin
-  sum.res$interval <- interval
-  sum.res$n.item <- ncol(data)
-
-  class(sum.res) = 'strel'
-  return(sum.res)
+  class(sum_res) = 'strel'
+  return(sum_res)
 }
