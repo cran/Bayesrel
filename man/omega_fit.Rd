@@ -15,6 +15,6 @@ comparison between model implied covariance matrix and sample covariance matrix
 also displays frequentist fit indices
 }
 \examples{
-omega_fit(strel(asrm, "omega"))
+omega_fit(strel(asrm, "omega", n.chains = 2, n.iter = 100))
 
 }

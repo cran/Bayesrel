@@ -2,17 +2,19 @@
 # source:
 # https://www.r-bloggers.com/iterated-principal-factor-method-of-factor-analysis-with-r/
 
-princFac <- function(m, max_iter = 50){
+princFac <- function(m){
   # r <- cov2cor(m)
   r <- m
-  r_smc <- (1 - 1 / diag(try(solve(cov2cor(r)))))
+  r_smc <- try_smc(r)
+  if (class(r_smc) == "try-error") {
+    warning("singular bootstrapped covariance matrices encountered")
+    return(list(loadings = NaN, err_var = NaN))
+  }
   diag(r) <- r_smc
-  min_error <- .001
-  com_iter <- c()
   h2 <- sum(diag(r))
   error <- h2
   i <- 1
-  while (error > min_error || i == 1){
+  while (error > .001 || i == 1){
     r_eigen <- eigen(r)
 
     lambda <- as.matrix(r_eigen$vectors[, 1] * sqrt(r_eigen$values[1]))
@@ -24,20 +26,13 @@ princFac <- function(m, max_iter = 50){
     error <- abs(h2 - h2_new)
 
     h2 <- h2_new
-
-    com_iter <- append(com_iter, h2_new)
     diag(r) <- r_mod_diag
     i <- i + 1
-    if (i > max_iter) {
+    if (i > 50) {
       error <- 0
     }
   }
 
-  # h2 <- rowSums(lambda^2)
-  # u2 <- 1 - h2
-  # com <- rowSums(lambda^2)^2 / rowSums(lambda^4)
-  # pf.loadings <- data.frame(cbind(round(lambda, 3), round(h2, 3), round(u2, 3), round(com, 3)))
-  # colnames(pf.loadings) <- c("factor", "h2", "u2", "com")
   if(sum(lambda) < 0){
     lambda <- -lambda
   }

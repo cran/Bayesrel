@@ -5,7 +5,7 @@
 8-Item Questionnaire Data from Cavalini (1992)
 }
 \description{
-A dataset consisting of eight item questionnaire data. It's likert scaled from 0-3.
+A dataset consisting of eight item questionnaire data. It's Likert scaled from 0-3.
 It is data measuring how annoyed people were by malodors}
 \usage{cavalini}
 \format{

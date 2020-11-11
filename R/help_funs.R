@@ -76,3 +76,71 @@ omegaBasic <- function(l, e){
   o <- sum(l)^2 / (sum(l)^2 + sum(e))
   return(o)
 }
+
+# calculate the kolomogorov smirnov distances between some samples and the original sample
+ks.test.statistic <- function(x, y) {
+  t <- stats::ks.test(x, y)
+  t$statistic
+}
+
+# calculate the kublack leibler distance between two samples
+KLD.statistic <- function(x, y) {
+  # transform the samples to PDFs:
+  xdf <- get_approx_density(x)
+  ydf <- get_approx_density(y)
+
+  xx <- seq(0, 1, length.out = 1e3)
+  t <- LaplacesDemon::KLD(xdf(xx), ydf(xx))
+  t$sum.KLD.py.px
+}
+
+hpdHelp <- function(x) {
+  x <- coda::as.mcmc(x)
+  return(coda::HPDinterval(x))
+}
+
+
+# create covariance matrix
+createUnidimCovMat <- function(avg, p) {
+  mean_cor <- 1
+  counter <- 1
+  while (mean_cor < (avg - .001) || mean_cor > (avg + .001)) {
+    mlam <- avg * 3 + .02
+    vlam <- avg * 2
+    lam_true <- abs(rnorm(p, mlam, vlam))
+    psi_true <- 1/rgamma(p, 10, 10)
+    loading <- matrix(lam_true, nrow = p)
+    psi_m <- diag(1, nrow = p)
+    diag(psi_m) <- psi_true
+    tmpCov <- make_symmetric(loading %*% 1 %*% t(loading) + psi_m)
+    cormat <- cov2cor(tmpCov)
+    mean_cor <- (sum(cormat) - p) / (p*p - p)
+    counter <- counter + 1
+    if (counter == 1e4) return(print("solution has not been found"))
+  }
+  return(tmpCov)
+}
+
+try_smc <- function(M) {
+  return(try(1 - 1 / diag(solve(cov2cor(M))), silent = T))
+}
+
+# # check if Matrix is invertible
+# checkInvertM <- function(M) {
+#   if (!("matrix" %in% class(try(solve(M),silent=TRUE))))
+#     return(FALSE)
+#   else
+#     return(TRUE)
+# }
+
+
+get_approx_density <- function(x) {
+  d <- density(x, n = 2^12)
+  f <- approxfun(d$x, d$y, yleft = 0, yright = 0)
+  c <- integrate(f, 0, 1)$value
+  return(
+    function(x) {
+      return(f(x) / c)
+    }
+  )
+}

@@ -5,26 +5,35 @@
 \title{calculate single test reliability estimates}
 \usage{
 strel(
-  x,
+  data = NULL,
   estimates = c("alpha", "lambda2", "glb", "omega"),
+  cov.mat = NULL,
   interval = 0.95,
   n.iter = 1000,
   n.burnin = 50,
+  thin = 1,
+  n.chains = 3,
   n.boot = 1000,
   omega.freq.method = "cfa",
   n.obs = NULL,
-  alpha.int.analytic = FALSE,
+  alpha.int.analytic = TRUE,
+  omega.int.analytic = TRUE,
   freq = TRUE,
   Bayes = TRUE,
   para.boot = FALSE,
   item.dropped = FALSE,
-  missing = "listwise"
+  missing = "pairwise",
+  callback = function() { }
 )
 }
 \arguments{
-\item{x}{A dataset or covariance matrix}
+\item{data}{The dataset to be analyzed, observations are rows, items are columns}
 
-\item{estimates}{A character vector containing the estimands, we recommend using lambda4 with only a few items due to the computation time}
+\item{estimates}{A character vector containing the estimands, we recommend using lambda4 with only a few items
+due to the computation time}
+
+\item{cov.mat}{A covariance matrix can be supplied instead of a dataset,
+but number of observations needs to be specified}
 
 \item{interval}{A number specifying the uncertainty interval}
 
@@ -32,13 +41,22 @@ strel(
 
 \item{n.burnin}{A number for the burnin in the Gibbs Sampler}
 
+\item{thin}{A number for the thinning of the MCMC samples}
+
+\item{n.chains}{A number for the chains to run for the MCMC sampling}
+
 \item{n.boot}{A number for the bootstrap samples}
 
-\item{omega.freq.method}{A character string for the method of frequentist omega, either "pfa" or "cfa"}
+\item{omega.freq.method}{A character string for the method of frequentist omega, either "pfa" or "cfa",
+with "pfa" the interval is always bootstrapped}
 
-\item{n.obs}{A number for the sample observations when a covariance matrix is supplied and the factor model is calculated}
+\item{n.obs}{A number for the sample observations when a covariance matrix is supplied
+and the factor model is calculated}
 
 \item{alpha.int.analytic}{A logical for calculating the alpha confidence interval analytically}
+
+\item{omega.int.analytic}{A logical for calculating the omega confidence interval analytically,
+only works with cfa as the omega.freq.method}
 
 \item{freq}{A logical for calculating the frequentist estimates}
 
@@ -48,7 +66,12 @@ strel(
 
 \item{item.dropped}{A logical for calculating the if-item-dropped statistics}
 
-\item{missing}{A string specifying the way to handle missing data}
+\item{missing}{A string specifying the way to handle missing data, 'listwise' is self-explanatory,
+'pairwise' in the Bayesian paradigm means sampling the missing values as additional parameters
+from the joint conditional distribution, in the frequentist paradigm this means using the 'pairwise' covariance
+matrix and the full information ML method for omega}
+
+\item{callback}{step count for external use}
 }
 \description{
 calculate Bayesian and frequentist single test reliability measures.
@@ -57,8 +80,9 @@ The estimates supported are Cronbach alpha, lambda2/4/6, the glb, and Mcdonald o
 the computational effort is considerable
 }
 \examples{
-summary(strel(asrm, estimates = "lambda2"))
-summary(strel(asrm, estimates = "lambda2", item.dropped = TRUE))
+summary(strel(asrm, estimates = "lambda2", n.chains = 2, n.iter = 200, n.boot = 200))
+summary(strel(asrm, estimates = "lambda2", item.dropped = TRUE, n.chains = 2,
+n.iter = 100, n.boot = 200))
 
 
 }
