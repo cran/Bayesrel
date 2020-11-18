@@ -18,9 +18,13 @@ p_strel <- function(x, estimate, low.bound){
 
   # prior prob
   n.item <- dim(x$Bayes$covsamp)[3]
-  prior_all <- priors[[as.character(n.item)]]
-  posi2 <- grep(estimate, prior_all, ignore.case = T)
-  prior <- prior_all[[posi2]]
+  if (n.item > 50) {
+    prior <- density(unlist(priorSamp(n.item, estimate)), from = 0, to = 1, n = 512)
+  } else {
+    prior_all <- priors[[as.character(n.item)]]
+    posi2 <- grep(estimate, prior_all, ignore.case = T)
+    prior <- prior_all[[posi2]]
+  }
   end <- length(prior[["x"]])
   poslow <- end - sum(prior[["x"]] > low.bound)
   prior_prob <- sum(prior[["y"]][poslow:end]) / sum(prior[["y"]])

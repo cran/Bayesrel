@@ -1,4 +1,4 @@
-deef60e812ee62be34f7de79b4e28401 *DESCRIPTION
+51b7a758f07157d8fb5c4440a7590432 *DESCRIPTION
 ef6d69ae66b2a8f738fbd99423e4b317 *NAMESPACE
 f074eda1c557354d0754ca982d2bb61e *R/Bayes_singletest_rel.R
 0ba7278d76b607215f1f1b37312d5504 *R/RcppExports.R
@@ -8,17 +8,18 @@ c648ed562dba8ed83bd58205fce12322 *R/freq_nonparametric.R
 8ca9d68b718f921f8e1d0adb9b207f89 *R/freq_parametric.R
 363006e047560ba6755e92ece04cdd35 *R/generic_functions.R
 907a2f7844f609cb4ca9895580c2fad2 *R/gibbs_output.R
-821a83932fcc6030d0cf656cbe27872c *R/glb_funs.R
+058ae0f9088764f782b0acbb10d39f83 *R/glb_funs.R
 3c658b97b0ec2b5deb92d435d77467dc *R/help_funs.R
 941af69785e0354882f53a45057d7daa *R/max_split_half.R
 71b41e3dc33ad32a4fec456548433ea4 *R/omega_fit.R
 399a8fce345d40f67850a45e48fe7ab0 *R/omega_freq.R
 9327f732708cdbd50238c9cfa476b0c7 *R/omega_gibbs_sampler.R
 995bc0c8531c70a571354c374c10a80c *R/princ_fac.R
-85232617b630628d19f3da979941a947 *R/prob_strel.R
+30dff23d2b0c337ab59d4de5c9ecc83a *R/prob_strel.R
+05684cbe7213c85ca279e63606dc4aa3 *R/samplePrior.R
 0291b3ec42b680c4d28739d408a96ee2 *R/sysdata.rda
-bd84caa9aef745095e283ed73db49e26 *README.md
-56939ed19fb088df6b36a76f8b92fcfe *build/partial.rdb
+26f7e33d799fe53c8e5c6c2c8f440996 *README.md
+9e892c0b99b54856953f9f8a21c37119 *build/partial.rdb
 41446d57c9d8054b99e9ea915ee6849e *cleanup
 c1828e39c146426b981b3721a5add89e *configure
 1e01219e6c0be29daee41240dad8276a *configure.ac
@@ -121,7 +122,7 @@ ddcb577bdb4c99c17674654ecdf5a3e7 *src/Csdp/theta/complement.c
 b0a667fa6ddb13c9c5af57a923b55367 *src/Csdp/theta/graphtoprob.c
 05fe43f93ae72eb5f4f6bced0353653b *src/Csdp/theta/rand_graph.c
 c83a85a5562349750e8600439304c5ef *src/Csdp/theta/theta.c
-ba891a0fecb92a0133ff82f45ee69e3a *src/LowBoundsC.cpp
+532cabab1166f57a86d7148e0b2a7217 *src/LowBoundsCpp.cpp
 b2faaa16b883592e95e007909fe367cd *src/Makevars.in
 4e1cb7a4932ce5565d865a15d2087e43 *src/Makevars.win
 cf23937be558ef2667c5b193cdfd92bc *src/RcppExports.cpp
@@ -129,6 +130,6 @@ cf23937be558ef2667c5b193cdfd92bc *src/RcppExports.cpp
 81cd472b4852f321906cc51653d1746d *src/customsdp.h
 63ef761301f52d984977bb5e5dc1c337 *src/customsdpCpp.cpp
 66bbb7f12b09c6a8d41b9da3d20b05af *src/initArma.cpp
-c2f6874a82481b2d6e6aa4f22e3bfff6 *src/pfaC.cpp
+c2f6874a82481b2d6e6aa4f22e3bfff6 *src/pfaCpp.cpp
 3026a813e1ac7255acc5c5501ab57128 *tests/testthat.R
-55a5031c90b3e90647e08b9f3ffd2691 *tests/testthat/test_strel.R
+abd09d1db0bc38e1ed27c2c16c743fd5 *tests/testthat/test_strel.R

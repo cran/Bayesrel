@@ -1,6 +1,10 @@
 
 # Bayesrel
 
+<!-- badges: start -->
+[![R build status](https://github.com/juliuspf/Bayesrel/workflows/R-CMD-check/badge.svg)](https://github.com/juliuspf/Bayesrel/actions)
+<!-- badges: end -->
+
 The goal of Bayesrel is to provide popular single-test reliability coefficients in the Bayesian statistics framework.
 These coefficients include alpha, lambda2, lambda6, the glb, and omega.
 
@@ -30,8 +34,6 @@ data <- asrm
 res <- strel(asrm)
 ## get a full result output
 summary(strel)
-## plot the results for the coefficient omega
-plot_strel(res, estimate = "omega")
 ## return the probability that coefficient alpha is larger than .70
 p_strel(res, estimate = "alpha", low.bound = .70)
 ```
