@@ -34,20 +34,24 @@ omega_fit <- function(x){
     qq_ee_low <- apply(ee_impl, 2, quantile, prob = .025)
     qq_ee_up <- apply(ee_impl, 2, quantile, prob = .975)
 
-    plot(eigen(sigma)$values, axes = F, ylim = c(0, ymax), ylab = "Eigenvalue - Size", xlab = "Eigenvalue - No.")
-    lines(qq_ee_low, col = "gray50", lty = 2)
-    lines(qq_ee_up, col = "gray50", lty = 2)
-    graphics::polygon(x = c(1:ncol(sigma), rev(1:ncol(sigma))), y = c(qq_ee_up, rev(qq_ee_low)),
-                      col = adjustcolor("gray", alpha.f = .7), border = NA)
-    lines(eigen(sigma)$values, type = "l", lwd = 2)
-    lines(eigen(sigma)$values, type = "p")
+    plot(eigen(sigma)$values, axes = F, ylim = c(0, ymax), ylab = "Eigenvalue", xlab = "Eigenvalue No.",
+         pch = 8, cex = 0)
+    # lines(qq_ee_low, col = "gray50", lty = 2)
+    # lines(qq_ee_up, col = "gray50", lty = 2)
+    # graphics::polygon(x = c(1:ncol(sigma), rev(1:ncol(sigma))), y = c(qq_ee_up, rev(qq_ee_low)),
+    #                   col = adjustcolor("gray", alpha.f = .7), border = NA)
+    arrows(x0 = seq(1:ncol(sigma)), x1 = seq(1:ncol(sigma)), y0 = qq_ee_low, y1 = qq_ee_up,
+           col = "gray50", angle=90, code = 3, length = .06, lwd = 1)
+    # lines(eigen(sigma)$values, type = "l", lwd = 2)
+    # lines(eigen(sigma)$values, type = "p")
+    lines(eigen(sigma)$values, type = "p", pch = 8, cex =.6)
     axis(side = 1, at = seq(1:ncol(sigma)))
-    axis(side = 2)
+    axis(side = 2, las = 1)
     # title(main = "Posterior Predictive Check for Omega 1-Factor-Model")
 
     legend(ncol(sigma)/3*1.1, ymax*(2/3),
            legend = c("Dataset Covariance Matrix", "Model-Implied Covariance Matrix"),
-           col=c("black", "gray"), lwd = c(2, 2), box.lwd = 0, lty = c(1, 2), cex = .8)
+           col=c("black", "gray50"), box.lwd = .7, lty = c(0, 1), pch = c(8, 30), cex = .8)
   }
   if (!is.null(x$freq$omega_fit)){
     return(x$freq$omega_fit)}

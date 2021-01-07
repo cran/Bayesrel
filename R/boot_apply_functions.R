@@ -15,20 +15,33 @@ applylambda2 <- function(M, callback = function(){}){
 }
 
 applylambda6 <- function(M, callback = function(){}){
-  lambda6 <- l6Arma(M)
+  smc <- try_smc(M)
+  if (class(smc) == "try-error" || anyNA(smc)) {
+    lambda6 <- NaN; warning("singular bootstrapped covariance matrices encountered when computing lambda6")
+  } else {
+    lambda6 <- l6Arma(M)
+  }
   callback()
   return(lambda6)
 }
 
 applyomega_pfa <- function(m, callback = function(){}){
-  f <- pfaArma(m)
-  l_fa <- f$loadings
-  er_fa <- f$err_var
-  om <- sum(l_fa)^2 / (sum(l_fa)^2 + sum(er_fa))
-  if (om < 0 || om > 1 || is.na(om)) om <- NaN
+  smc <- try_smc(m)
+  if (class(smc) == "try-error" || anyNA(smc)) {
+    om <- NaN; warning("singular bootstrapped covariance matrices encountered when computing omega")
+  } else {
+    f <- pfaArma(m)
+    l_fa <- f$loadings
+    er_fa <- f$err_var
+    om <- sum(l_fa)^2 / (sum(l_fa)^2 + sum(er_fa))
+    if (om < 0 || om > 1 || is.na(om)) om <- NaN
+  }
   callback()
+
   return(om)
 }
+
+
 
 applyalpha_nocpp <- function(M, callback = function(){}){
   p <- ncol(M)
@@ -54,7 +67,7 @@ applylambda4_nocpp <- function(M, callback = function(){}){
 
 applylambda6_nocpp <- function(M, callback = function(){}){
   smc <- try_smc(M)
-  if (class(smc) == "try-error") {
+  if (class(smc) == "try-error" || anyNA(smc)) {
     lambda6 <- NaN; warning("singular bootstrapped covariance matrices encountered")
   } else {
     lambda6 <- 1 - (sum(1 - (smc)) / sum(cov2cor(M)))
@@ -62,8 +75,6 @@ applylambda6_nocpp <- function(M, callback = function(){}){
   callback()
   return(lambda6)
 }
-
-
 
 applyomega_cfa_data <- function(data, interval, pairwise, callback = function(){}){
   out <- omegaFreqData(data, interval=interval, omega.int.analytic=T, pairwise=pairwise)
@@ -88,7 +99,3 @@ applyomega_pfa_nocpp <- function(m, callback = function(){}){
   callback()
   return(om)
 }
-
-
-
-

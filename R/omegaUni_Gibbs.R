@@ -15,16 +15,20 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
   inds <- which(is.na(data), arr.ind = T)
   dat_imp <- array(0, c(n.chains, n.iter, nrow(inds)))
 
+  # hyperparameters
+  # prior multiplier for loadings variance, prior shape and rate for residuals, prior loadings,
+  # prior scaling for cov matrix of factor scores, prior df for cov matrix of factor scores
+  pars <- list(H0k = 1, a0k = 2, b0k = 1, l0k = numeric(p), R0 = p, p0 = p+2)
+
   for (z in 1:n.chains) {
     # draw starting values for sampling from prior distributions:
-    ss <- drawStart(n, p)
+    ss <- drawStart(n, p, pars)
     wi <- ss$wi
     phi <- ss$phi
     # prepare matrices for saving lambda and psi and omega:
     La <- matrix(0, n.iter, p)
     Psi <- matrix(0, n.iter, p)
     oms <- numeric(n.iter)
-    ph <- numeric(n.iter)
 
     if (pairwise) { # missing data
       dat_complete <- data
@@ -32,7 +36,7 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
       ms <- rep(0, p)
 
       for (i in 1:n.iter) {
-        out <- sampleFMParams(wi, dat_complete, phi)
+        out <- sampleFMParams(wi, dat_complete, phi, pars)
         wi <- out$wi
         phi <- out$phi
         cc <- out$cc
@@ -62,7 +66,7 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
     } else { # no missing data
 
       for (i in 1:n.iter){
-        oo <- sampleFMParams(wi, data, phi)
+        oo <- sampleFMParams(wi, data, phi, pars)
         omm[z, i] <- omegaBasic(oo$lambda, oo$psi)
         lll[z, i, ] <- oo$lambda
         ppp[z, i, ] <- oo$psi
@@ -93,17 +97,17 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
 
 
 
-sampleFMParams <- function(wi, data, phi) {
+sampleFMParams <- function(wi, data, phi, pars) {
   n <- nrow(data)
   p <- ncol(data)
 
-  H0k <- 1 # prior multiplier for lambdas variance
-  R0 <- p # prior shape for wishart distribution for variance of factor scores (wi)
-  p0 <- p+2 # prior df for wishart distribution for variance of factor scores (wi)
+  H0k <- pars$H0k # prior multiplier for lambdas variance
+  R0 <- pars$R0 # prior shape for wishart distribution for variance of factor scores (wi)
+  p0 <- pars$p0 # prior df for wishart distribution for variance of factor scores (wi)
 
-  l0k <- rep(0, p) # prior lambdas
-  a0k <- 2 # prior shape parameter for gamma function for psis
-  b0k <- 1 # prior rate parameter for gamma for psi
+  l0k <- pars$l0k # prior lambdas
+  a0k <- pars$a0k # prior shape parameter for gamma function for psis
+  b0k <- pars$b0k # prior rate parameter for gamma for psi
 
   # hyperparameters for posteriors
   Ak <- (1/H0k + c(t(wi) %*% wi))^-1
@@ -138,25 +142,17 @@ sampleFMParams <- function(wi, data, phi) {
   return(list(psi=psi, lambda=lambda, phi=phi, wi=wi, cc=cc))
 }
 
-drawStart <- function(n, p) {
-  H0k <- 1 # prior multiplier for lambdas variance
-  l0k <- rep(0, p) # prior lambdas
-  a0k <- 2 # prior shape parameter for gamma function for psis
-  b0k <- 1 # prior rate parameter for gamma for psi
 
+drawStart <- function(n, p, pars) {
 
-  R0 <- p # prior shape for wishart distribution for variance of factor scores (wi)
-  p0 <- p+2 # prior df for wishart distribution for variance of factor scores (wi)
-  # this lets the factor variance be approx 1
-
-  invpsi <- rgamma(p, a0k, b0k)
+  invpsi <- rgamma(p, pars$a0k, pars$b0k)
   psi <- 1/invpsi
   invPsi <- diag(invpsi)
 
-  lambda <- rnorm(p, l0k, sqrt(psi*H0k))
+  lambda <- rnorm(p, pars$l0k, sqrt(psi*pars$H0k))
 
   # phi <- 1
-  phi <- LaplacesDemon::rinvwishart(nu = p0, S = R0)
+  phi <- LaplacesDemon::rinvwishart(nu = pars$p0, S = pars$R0)
   invphi <- 1/phi
 
   wi <- rnorm(n, 0, sqrt(phi))

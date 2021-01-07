@@ -6,7 +6,7 @@ princFac <- function(m){
   # r <- cov2cor(m)
   r <- m
   r_smc <- try_smc(r)
-  if (class(r_smc) == "try-error") {
+  if (class(r_smc) == "try-error" || anyNA(r_smc)) {
     warning("singular bootstrapped covariance matrices encountered")
     return(list(loadings = NaN, err_var = NaN))
   }
