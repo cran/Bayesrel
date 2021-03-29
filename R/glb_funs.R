@@ -56,16 +56,12 @@ glbOnArray_custom <- function(Cov, callback = function(){}, printlevel = 0) {
     prob.data$A,
     prob.data$b,
     Cov,
+    callback,
     printlevel
   )
   return(ret)
 
-  scv <- apply(Cov, 1, sum)
-  vars <- apply(Cov, 1, diag)
-  svars <- apply(vars, 2, sum)
-  glbs <- (scv - svars + ret) / scv
 
-  return(glbs)
 }
 
 get.prob.info2 <- function(K, m) {

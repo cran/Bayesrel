@@ -20,6 +20,7 @@ arma::dvec csdpArma(
               const Rcpp::List& A_p,
               const arma::dvec& b_p,
               const arma::cube& car,
+					Rcpp::Function func,
               const int printlevel = 0)
 {
 
@@ -49,7 +50,9 @@ arma::dvec csdpArma(
     /*
      * Solve the problem
      */
-    status = custom_sdpCpp(n_p,nconstraints_p,C,b,constraints,0.0,&pobj,&dobj, car, out, printlevel);
+	bool carHasMoreThan1Row = (car.n_rows > 1);
+	
+    status = custom_sdpCpp(n_p,nconstraints_p,C,b,constraints,0.0,&pobj,&dobj, car, out, func, carHasMoreThan1Row, printlevel);
 
 
     // free_prob(n_p,nconstraints_p,C,b,constraints,X,y,Z);

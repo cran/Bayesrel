@@ -11,6 +11,7 @@ test_that("Estimates lambda2 and omega are correct", {
   expect_equal(ee$Bayes$est$Bayes_omega, 0.7708523, tolerance = 1e-3)
   expect_equal(ee$freq$est$freq_omega, 0.7919616, tolerance = 1e-3)
   expect_equal(ee$Bayes$cred$low$Bayes_omega, 0.6719616, tolerance = 1e-3)
+  expect_equal(ee$freq$conf$low$freq_omega, 0.7194611, tolerance = 1e-3)
   if (as.numeric(R.Version()$major >= 4)) {
     expect_equal(as.numeric(ee$freq$conf$up$freq_lambda2), 0.865121, tolerance = 1e-3)
   } # because of the change in the RNG brought by the new R version
@@ -123,6 +124,18 @@ test_that("Results with input cov matrix are correct", {
       tol <- 1e-3
     expect_equal(as.numeric(ee$freq$conf$low$freq_lambda2), 0.7724344, tolerance = tol)
   } # because of the change in the RNG brought by the new R version
+
+})
+
+test_that("Frequentist glb is correct", {
+
+  data(asrm, package = "Bayesrel")
+  set.seed(1234)
+  ee <- Bayesrel::strel(asrm, estimates = "glb", n.boot = 100, freq = TRUE, Bayes = FALSE)
+
+  expect_equal(c(ee$freq$est$freq_glb), 0.8459531, tolerance = 1e-3)
+  expect_equal(c(ee$freq$conf$up$freq_glb, use.names = FALSE), 0.9011926, tolerance = 1e-3)
+
 
 })
 

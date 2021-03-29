@@ -15,8 +15,8 @@ applylambda2 <- function(M, callback = function(){}){
 }
 
 applylambda6 <- function(M, callback = function(){}){
-  smc <- try_smc(M)
-  if (class(smc) == "try-error" || anyNA(smc)) {
+  eig <- try_psd(M)
+  if (class(eig) == "try-error" || any(eig <= 0)) {
     lambda6 <- NaN; warning("singular bootstrapped covariance matrices encountered when computing lambda6")
   } else {
     lambda6 <- l6Arma(M)
@@ -26,8 +26,8 @@ applylambda6 <- function(M, callback = function(){}){
 }
 
 applyomega_pfa <- function(m, callback = function(){}){
-  smc <- try_smc(m)
-  if (class(smc) == "try-error" || anyNA(smc)) {
+  eig <- try_psd(m)
+  if (class(eig) == "try-error" || any(eig <= 0)) {
     om <- NaN; warning("singular bootstrapped covariance matrices encountered when computing omega")
   } else {
     f <- pfaArma(m)

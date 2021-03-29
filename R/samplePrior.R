@@ -30,11 +30,8 @@ priorSamp <- function(p, estimates, n.samp = 2e3){
     out$priorlambda6 <- quantiles(priorlambda6[priorlambda6 >= 0])
   }
   if ("glb" %in% estimates){
-    # control <- Rcsdp::csdp.control(printlevel = 0)
-    # write.control.file(control)
     priorglb <- glbOnArray_custom(m)
     out$priorglb <- quantiles(priorglb[priorglb >= 0])
-    # unlink("param.csdp")
   }
   if ("omega" %in% estimates){
     H0 <- 1 # prior multiplier matrix for lambdas variance

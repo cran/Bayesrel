@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // csdpArma
-arma::dvec csdpArma(int n_p, int nconstraints_p, int nblocks_p, const arma::ivec& blocktypes_p, const arma::ivec& blocksizes_p, const Rcpp::List& C_p, const Rcpp::List& A_p, const arma::dvec& b_p, const arma::cube& car, const int printlevel);
-RcppExport SEXP _Bayesrel_csdpArma(SEXP n_pSEXP, SEXP nconstraints_pSEXP, SEXP nblocks_pSEXP, SEXP blocktypes_pSEXP, SEXP blocksizes_pSEXP, SEXP C_pSEXP, SEXP A_pSEXP, SEXP b_pSEXP, SEXP carSEXP, SEXP printlevelSEXP) {
+arma::dvec csdpArma(int n_p, int nconstraints_p, int nblocks_p, const arma::ivec& blocktypes_p, const arma::ivec& blocksizes_p, const Rcpp::List& C_p, const Rcpp::List& A_p, const arma::dvec& b_p, const arma::cube& car, Rcpp::Function func, const int printlevel);
+RcppExport SEXP _Bayesrel_csdpArma(SEXP n_pSEXP, SEXP nconstraints_pSEXP, SEXP nblocks_pSEXP, SEXP blocktypes_pSEXP, SEXP blocksizes_pSEXP, SEXP C_pSEXP, SEXP A_pSEXP, SEXP b_pSEXP, SEXP carSEXP, SEXP funcSEXP, SEXP printlevelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,8 +21,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::List& >::type A_p(A_pSEXP);
     Rcpp::traits::input_parameter< const arma::dvec& >::type b_p(b_pSEXP);
     Rcpp::traits::input_parameter< const arma::cube& >::type car(carSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type func(funcSEXP);
     Rcpp::traits::input_parameter< const int >::type printlevel(printlevelSEXP);
-    rcpp_result_gen = Rcpp::wrap(csdpArma(n_p, nconstraints_p, nblocks_p, blocktypes_p, blocksizes_p, C_p, A_p, b_p, car, printlevel));
+    rcpp_result_gen = Rcpp::wrap(csdpArma(n_p, nconstraints_p, nblocks_p, blocktypes_p, blocksizes_p, C_p, A_p, b_p, car, func, printlevel));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -72,7 +73,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_Bayesrel_csdpArma", (DL_FUNC) &_Bayesrel_csdpArma, 10},
+    {"_Bayesrel_csdpArma", (DL_FUNC) &_Bayesrel_csdpArma, 11},
     {"_Bayesrel_alphaArma", (DL_FUNC) &_Bayesrel_alphaArma, 1},
     {"_Bayesrel_l2Arma", (DL_FUNC) &_Bayesrel_l2Arma, 1},
     {"_Bayesrel_l6Arma", (DL_FUNC) &_Bayesrel_l6Arma, 1},

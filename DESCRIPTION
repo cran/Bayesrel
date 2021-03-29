@@ -1,7 +1,7 @@
 Package: Bayesrel
 Type: Package
 Title: Bayesian Reliability Estimation
-Version: 0.7.0.3
+Version: 0.7.0.7
 Authors@R: c(person("Julius M.", "Pfadt", email = "julius.pfadt@gmail.com",
                   role = c("aut", "cre")),
              person("Don", "van den Bergh",
@@ -39,10 +39,10 @@ RoxygenNote: 7.1.1
 Depends: R (>= 2.10)
 Suggests: testthat (>= 2.1.0)
 NeedsCompilation: yes
-Packaged: 2021-01-07 12:14:33 UTC; julius
+Packaged: 2021-03-29 12:26:38 UTC; julius
 Author: Julius M. Pfadt [aut, cre],
   Don van den Bergh [aut],
   Joris Goosen [aut]
 Maintainer: Julius M. Pfadt <julius.pfadt@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-01-07 13:00:02 UTC
+Date/Publication: 2021-03-29 13:22:06 UTC

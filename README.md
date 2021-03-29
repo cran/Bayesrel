@@ -1,12 +1,11 @@
 
-# Bayesrel
 
 <!-- badges: start -->
 [![R build status](https://github.com/juliuspf/Bayesrel/workflows/R-CMD-check/badge.svg)](https://github.com/juliuspf/Bayesrel/actions)
 <!-- badges: end -->
 
-The goal of Bayesrel is to provide popular single-test reliability coefficients in the Bayesian statistics framework.
-These coefficients include alpha, lambda2, lambda6, the glb, and omega.
+# Bayesrel - devel
+This is the development branch of the Bayesrel-package.
 
 ## Installation
 
@@ -15,10 +14,10 @@ You can install the released version of Bayesrel from [CRAN](https://CRAN.R-proj
 ``` r
 install.packages("Bayesrel")
 ```
-or install the latest version of Bayesrel from [github] (https:://github.com) with the help of the devtools-package:
+or install the latest version of Bayesrel from [github] (https://github.com) with the help of the remotes-package:
 
 ```r
-devtools::install_github("juliuspf/Bayesrel")
+remotes::install_github("juliuspf/Bayesrel")
 ```
 
 ## Example

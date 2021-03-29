@@ -122,16 +122,13 @@ createUnidimCovMat <- function(avg, p) {
 }
 
 try_smc <- function(M) {
-  return(try(1 - 1 / diag(solve(cov2cor(M))), silent = T))
+  return(try(1 - 1 / diag(solve(cov2cor(M))), silent = TRUE))
 }
 
-# # check if Matrix is invertible
-# checkInvertM <- function(M) {
-#   if (!("matrix" %in% class(try(solve(M),silent=TRUE))))
-#     return(FALSE)
-#   else
-#     return(TRUE)
-# }
+try_psd <- function(M) {
+  R <- cov2cor(M)
+  return(try(eigen(R, only.values = TRUE)$values, silent = TRUE))
+}
 
 
 get_approx_density <- function(x) {

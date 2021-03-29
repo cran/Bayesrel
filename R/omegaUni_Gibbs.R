@@ -25,10 +25,6 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
     ss <- drawStart(n, p, pars)
     wi <- ss$wi
     phi <- ss$phi
-    # prepare matrices for saving lambda and psi and omega:
-    La <- matrix(0, n.iter, p)
-    Psi <- matrix(0, n.iter, p)
-    oms <- numeric(n.iter)
 
     if (pairwise) { # missing data
       dat_complete <- data
