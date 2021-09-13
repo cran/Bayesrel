@@ -11,7 +11,7 @@ MaxSplitExhaustive <- function(M){
   nite <- ncol(M)
   mat1 <- (bin.combs2(nite)+1)/2
   res1 <- 0
-  for (jjz in 1:length(mat1[,1])){
+  for (jjz in seq_len(length(mat1[,1]))) {
     xal <- mat1[jjz,]
     gutt1 <- 4*(t(xal)%*%cov1%*%(1-xal))/sum(cov1)
     resrand <- gutt1
@@ -39,7 +39,7 @@ bin.combs2 <- function (p) {
 # source:
 # Hunt, T. D., & Bentler, P. M. (2015). Quantile lower bounds to reliability based on locally optimal splits.
 # Psychometrika, 80(1), 182-195.
-quant.lambda4 <- function(x, starts = 1000, quantile = 1){
+quant.lambda4 <- function(x, starts = 1000){
   l4.vect <- rep(NA, starts)
   #Determines if x is a covariance or data matrix and establishes a covariance matrix for estimation.
   sigma  <- x
@@ -51,7 +51,7 @@ quant.lambda4 <- function(x, starts = 1000, quantile = 1){
   onerow <- t(onerow)
   onevector <- t(onerow)
   f <- rep(NA,starts)
-  for(y in 1:starts){
+  for (y in 1:starts) {
     #Random number generator for the t-vectors
     trow <- (round(runif(items, min  = 0, max = 1))-.5)*2
     trow <- t(trow)
@@ -80,8 +80,7 @@ quant.lambda4 <- function(x, starts = 1000, quantile = 1){
     splitmtrx[,y] <- t1
     l4.vect[y] <- (4*(t1t%*%sigma%*%t2))/(onerow%*%sigma%*%onevector)
   }
-  quants <- quantile(l4.vect, quantile)
-  lambda4.quantile <- quants
-  return(lambda4.quantile)
+
+  return(l4.vect)
 }
 

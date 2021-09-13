@@ -5,7 +5,7 @@
 princFac <- function(m){
   # r <- cov2cor(m)
   r <- m
-  r_smc <- try_smc(r)
+  r_smc <- trySmc(r)
   if (class(r_smc) == "try-error" || anyNA(r_smc)) {
     warning("singular bootstrapped covariance matrices encountered")
     return(list(loadings = NaN, err_var = NaN))
@@ -14,7 +14,7 @@ princFac <- function(m){
   h2 <- sum(diag(r))
   error <- h2
   i <- 1
-  while (error > .001 || i == 1){
+  while (error > .001 || i == 1) {
     r_eigen <- eigen(r)
 
     lambda <- as.matrix(r_eigen$vectors[, 1] * sqrt(r_eigen$values[1]))
@@ -33,7 +33,7 @@ princFac <- function(m){
     }
   }
 
-  if(sum(lambda) < 0){
+  if (sum(lambda) < 0){
     lambda <- -lambda
   }
   L <- lambda %*% t(lambda)
@@ -57,7 +57,7 @@ corSmooth2 <- function (x, eig_tol = 10^-12) {
         eig_tol
       nvar <- dim(x)[1]
       tot <- sum(eigens$values)
-      eigens$values <- eigens$values * nvar/tot
+      eigens$values <- eigens$values * nvar / tot
       cnames <- colnames(x)
       rnames <- rownames(x)
       x <- eigens$vectors %*% diag(eigens$values) %*%

@@ -14,7 +14,8 @@ rating from 1 to 5 on a Likert scale}
 \source{
 article}
 \references{
-Nicolai, J., & Moshagen, M. (2018). Pathological buying symptoms are associated with distortions in judging elapsed time. Journal of Behavioral Addictions, 7(3), 752-759.
+Nicolai, J., & Moshagen, M. (2018). Pathological buying symptoms are associated with distortions in judging elapsed time.
+Journal of Behavioral Addictions, 7(3), 752-759.
 }
 
 \keyword{datasets}

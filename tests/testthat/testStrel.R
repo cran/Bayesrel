@@ -33,14 +33,18 @@ test_that("Bayes glb is correct", {
 })
 
 
-test_that("Bayes Alpha if item deleted is correct", {
+test_that("Bayes alpha and omega if item deleted is correct", {
 
   data(asrm, package = "Bayesrel")
   set.seed(1234)
-  ee <- Bayesrel::strel(asrm, estimates = "alpha", n.iter = 100, freq = F, item.dropped = T, n.chains = 2)
+  ee <- Bayesrel::strel(asrm, estimates = c("alpha", "omega"), n.iter = 100, freq = F, item.dropped = T, n.chains = 2)
   expect_equal(as.numeric(ee$Bayes$ifitem$est$alpha[1:2]), c(0.7207363, 0.7245768),
                tolerance = 1e-3)
   expect_equal(as.numeric(ee$Bayes$ifitem$cred$alpha[c(1, 10)]), c(0.6450673, 0.8049170),
+               tolerance = 1e-3)
+  expect_equal(as.numeric(ee$Bayes$ifitem$est$omega[4:5]), c(0.7449255, 0.7204507),
+               tolerance = 1e-3)
+  expect_equal(as.numeric(ee$Bayes$ifitem$cred$omega[c(1, 10)]), c(0.6009078, 0.8274682),
                tolerance = 1e-3)
 
 })
@@ -138,4 +142,5 @@ test_that("Frequentist glb is correct", {
 
 
 })
+
 

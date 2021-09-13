@@ -7,8 +7,8 @@ omegaFreqData <- function(
   omega.int.analytic,
   pairwise,
   n.boot = 1e3,
-  callback = function(){},
-  parametric = FALSE){
+  parametric = FALSE,
+  callback = function(){}) {
 
   p <- ncol(data)
   n <- nrow(data)
@@ -19,19 +19,19 @@ omegaFreqData <- function(
   err_names <- paste("e", 1:p, sep = "")
   model <- paste0("f1 =~ ")
   loadings <- paste(paste(lam_names, "*", file$names, sep = ""),
-                       collapse = " + ")
+                    collapse = " + ")
   errors <- paste(paste(file$names, " ~~ ", err_names, "*",
-                           file$names, sep = ""), collapse = "\n")
+                        file$names, sep = ""), collapse = "\n")
   sum_loads <- paste("loading :=", paste(lam_names, collapse = " + "),
-                      "\n")
+                     "\n")
   sum_errs <- paste("error :=", paste(err_names, collapse = " + "),
                     "\n")
   omega <- "omega := (loading^2) / ((loading^2) + error) \n"
   mod <- paste(model, loadings, "\n", errors,
-                 "\n", sum_loads, sum_errs, omega)
+               "\n", sum_loads, sum_errs, omega)
 
   if (pairwise) {
-    fit <- fitmodel_mis(mod, data)
+    fit <- fitmodelMis(mod, data)
   } else {
     fit <- fitmodel(mod, data)
   }
@@ -40,10 +40,10 @@ omegaFreqData <- function(
     return(list(omega = NA, fit.object = NULL))
   } else {
     params <- lavaan::parameterestimates(fit, level = interval)
-    omega <- params$est[params$lhs=="omega"]
+    omega <- params$est[params$lhs == "omega"]
     if (omega.int.analytic) {
-      om_low <- params$ci.lower[params$lhs=="omega"]
-      om_up <- params$ci.upper[params$lhs=="omega"]
+      om_low <- params$ci.lower[params$lhs == "omega"]
+      om_up <- params$ci.upper[params$lhs == "omega"]
       om_obj <- NA
     } else { # omega cfa with bootstrapping:
       if (parametric) {
@@ -59,7 +59,7 @@ omegaFreqData <- function(
           callback()
           if (!is.null(fit)) {
             params <- lavaan::parameterestimates(fit, level = interval)
-            om_obj[i] <- params$est[params$lhs=="omega"]
+            om_obj[i] <- params$est[params$lhs == "omega"]
           } else {
             om_obj[i] <- NA
           }
@@ -80,7 +80,7 @@ omegaFreqData <- function(
         for (i in 1:n.boot){
           boot_data <- as.matrix(data[sample.int(n, size = n, replace = TRUE), ])
           if (pairwise) {
-            fit <- fitmodel_mis(mod, boot_data)
+            fit <- fitmodelMis(mod, boot_data)
           } else {
             fit <- fitmodel(mod, boot_data)
           }
@@ -117,7 +117,7 @@ omegaFreqData <- function(
 fitmodel <- function(mod, data) {
   out <- tryCatch(
     {
-      lavaan::cfa(mod, data, std.lv = T)
+      lavaan::cfa(mod, data, std.lv = TRUE)
     },
     error = function(cond) {
       return(NULL)
@@ -130,10 +130,10 @@ fitmodel <- function(mod, data) {
   return(out)
 }
 
-fitmodel_mis <- function(mod, data) {
+fitmodelMis <- function(mod, data) {
   out <- tryCatch(
     {
-      lavaan::cfa(mod, data, std.lv = T, missing = "ML")
+      lavaan::cfa(mod, data, std.lv = TRUE, missing = "ML")
     },
     error = function(cond) {
       return(NULL)

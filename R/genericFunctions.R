@@ -27,10 +27,10 @@ print.strel <- function(x, ...) {
 }
 
 #'@export
-summary.strel <- function(object, ...){
+summary.strel <- function(object, ...) {
 
   out_matrix <- list()
-  if (!is.null(object$freq) & !is.null(object$Bayes)){
+  if (!is.null(object$freq) & !is.null(object$Bayes)) {
     out_matrix$est <- rbind(as.data.frame(as.matrix(object$Bayes$est)),
                             as.data.frame(as.matrix(object$freq$est)))
     out_matrix$int$low <- rbind(as.data.frame(as.matrix(object$Bayes$cred$low)),
@@ -76,7 +76,6 @@ summary.strel <- function(object, ...){
     out_matrix$para.boot <- object$para.boot
     out_matrix$inv.mat <- object$freq$inv.mat
 
-
   } else {
     return(warning("no estimates calculated"))
   }
@@ -91,71 +90,38 @@ summary.strel <- function(object, ...){
 }
 
 #'@export
-print.summary.strel <- function(x, ...){
+print.summary.strel <- function(x, ...) {
   n_row <- length(x$est$V1)
   mat <- data.frame(matrix(0, n_row, 0))
   mat[, 1] <- x$est
-  mat[, 2] <- '   '
+  mat[, 2] <- "   "
   mat[, 3] <- x$int$low
   mat[, 4] <- x$int$up
   row.names(mat) <- row.names(x$est)
-  colnames(mat) <- c("estimate", '', "interval.low", "interval.up")
+  colnames(mat) <- c("estimate", "", "interval.low", "interval.up")
 
   cat("Call: \n")
   print.default(x$call)
   cat("\n")
   cat("Results: \n")
-  print(mat, right = F)
+  print(mat, right = FALSE)
   cat("\n")
   cat("uncertainty interval: ")
   cat(x$interval, "\n")
 
-  # if (!is.null(x$n.iter) & !is.null(x$n.burnin)) {
-  #   cat("iterations: ")
-  #   cat(x$n.iter, "\n")
-  #   cat("burnin: ")
-  #   cat(x$n.burnin, "\n")
-  #   cat("thinning interval: ")
-  #   cat(x$thin, "\n")
-  #   cat("chains: ")
-  #   cat(x$n.chains, "\n")
-  # }
-
   if (length(grep("freq", x$est)) > 0) {
-    # if (("alpha" %in% x$estimates & is.null(x$alpha.interval)) |
-    #     "lambda2" %in% x$estimates | "lambda4" %in% x$estimates | "lambda6" %in% x$estimates |
-    #     "glb" %in% x$estimates | ("omega" %in% x$estimates & !is.null(x$omega.pfa)) |
-    #     ("omega" %in% x$estimates & is.null(x$omega.interval))){
-    #     cat("bootstrap samples: ")
-    #     cat(x$n.boot, "\n")
-    # }
-    # if ("alpha" %in% x$estimates & !is.null(x$alpha.interval)) {
-    #   cat("alpha confidence interval is estimated analytically \n")
-    # }
+
     if (!is.null(x$inv.mat)) {
       cat("the number of bootstrap samples reduced to ")
       cat(x$inv.mat)
       cat(" because some bootstrapped matrices were singular\n")
     }
-    if ("omega" %in% x$estimates){
+    if ("omega" %in% x$estimates) {
       if (!is.null(x$omega.pfa) & !is.null(x$omega.error)) {
         cat("frequentist omega method is pfa\n")
         cat("omega confidence interval is estimated with bootstrap because the cfa did not find a solution\n")
       }
     }
-      # } else {
-      #   # cat("frequentist omega method: cfa ")
-      # }
-      # cat("\nomega confidence interval is estimated with: ")
-      # if (!is.null(x$omega.pfa)) {
-      #   cat("bootstrap \n")
-      # } else {
-      #   if (!is.null(x$omega.interval)) {
-      #     cat("maximum likelihood z-value \n")
-      #   } else {
-      #     cat("bootstrap \n")
-      #   }
-      # }
 
   }
 
@@ -168,23 +134,23 @@ print.summary.strel <- function(x, ...){
   }
 
 
-  if (!is.null(x$ifitem$bay_est)){
+  if (!is.null(x$ifitem$bay_est)) {
     n_row <- length(unlist(x$ifitem$bay_est[1])) + 1
     n_col <- 3
     names <- NULL
-    for(z in 1:(n_row-1)){
+    for(z in 1:(n_row - 1)){
       names[z] <- paste0("x", z)
     }
     row_names <- c("original", names)
 
-    for (i in 1:length(x$estimates)) {
+    for (i in seq_len(length(x$estimates))) {
       mat_ifitem_bay <- data.frame(matrix(0, n_row, n_col))
       row.names(mat_ifitem_bay) <- row_names
 
       mat_ifitem_bay[1, ] <- c(unlist(x$est)[i], unlist(x$int$low)[i], unlist(x$int$up)[i])
       mat_ifitem_bay[2:n_row, ] <- cbind(as.vector(unlist(x$ifitem$bay_est[i])),
-                                         matrix(unlist(x$ifitem$bay_cred[i]), n_row-1, 2))
-      colnames(mat_ifitem_bay) <- c("point.estimate", "interval.low","interval.up")
+                                         matrix(unlist(x$ifitem$bay_cred[i]), n_row - 1, 2))
+      colnames(mat_ifitem_bay) <- c("point.estimate", "interval.low", "interval.up")
       cat("\n")
       cat(paste0("Bayesian ", x$estimate[i], " if item dropped: \n"))
       print(mat_ifitem_bay)
@@ -192,32 +158,78 @@ print.summary.strel <- function(x, ...){
     }
   }
 
-  if (!is.null(x$ifitem$freq_tab)){
-      n_row <- length(unlist(x$ifitem$freq_tab[1])) + 1
-      n_col <- length(x$estimates)
-      names <- NULL
-      for(z in 1:(n_row-1)){
-        names[z] <- paste0("x", z)
-      }
-      row_names <- c("original", names)
-      mat_ifitem_freq <- data.frame(matrix(0, n_row, n_col))
-      mat_ifitem_freq[1, ] <- as.vector(unlist(x$est)[grep("freq", rownames(x$est))])
-      for (i in 1:n_col){
-        mat_ifitem_freq[2:n_row, i] <- as.vector(unlist(x$ifitem$freq_tab[i]))
-      }
-      colnames(mat_ifitem_freq) <- x$estimates
-      row.names(mat_ifitem_freq) <- c("original", names)
+  if (!is.null(x$ifitem$freq_tab)) {
+    n_row <- length(unlist(x$ifitem$freq_tab[1])) + 1
+    n_col <- length(x$estimates)
+    names <- NULL
+    for (z in 1:(n_row-1)) {
+      names[z] <- paste0("x", z)
+    }
+    row_names <- c("original", names)
+    mat_ifitem_freq <- data.frame(matrix(0, n_row, n_col))
+    mat_ifitem_freq[1, ] <- as.vector(unlist(x$est)[grep("freq", rownames(x$est))])
+    for (i in 1:n_col) {
+      mat_ifitem_freq[2:n_row, i] <- as.vector(unlist(x$ifitem$freq_tab[i]))
+    }
+    colnames(mat_ifitem_freq) <- x$estimates
+    row.names(mat_ifitem_freq) <- c("original", names)
 
-      cat("\n")
-      cat("Frequentist point estimate if item dropped: \n")
-      print(mat_ifitem_freq)
+    cat("\n")
+    cat("Frequentist point estimate if item dropped: \n")
+    print(mat_ifitem_freq)
 
-      if ("omega" %in% x$estimates){
-        if (!is.null(x$omega.item.error)) {
-          cat("frequentist omega method for item.dropped statistic is pfa because the cfa did not find a solution\n")
-        }
+    if ("omega" %in% x$estimates) {
+      if (!is.null(x$omega.item.error)) {
+        cat("frequentist omega method for item.dropped statistic is pfa because the cfa did not find a solution\n")
       }
+    }
   }
 
 }
 
+
+#'@export
+print.bomegas <- function(x, ...) {
+  # prepare output matrix
+  out <- cbind(as.numeric(sprintf("%.5f", c(x$omega_t$mean, x$omega_t$cred))),
+               as.numeric(sprintf("%.5f", c(x$omega_h$mean, x$omega_h$cred))))
+  colnames(out) <- c("omega_t", "omega_h")
+  row.names(out) <- c("posterior mean", paste0(x$interval * 100, "% CI lower"),
+                      paste0(x$interval * 100, "% CI upper"))
+
+  # output:
+  cat("Call: \n")
+  print.default(x$call)
+  cat("\n")
+  print.default(out)
+  if (x$listwise) {
+    cat("\nComplete cases: ")
+    cat(x$complete_cases)
+  }
+}
+
+#'@export
+print.omegasCFA <- function(x, ...) {
+  # prepare output matrix
+  out <- cbind(as.numeric(sprintf("%.5f", c(x$omega_t$est, x$omega_t$conf))),
+               as.numeric(sprintf("%.5f", c(x$omega_h$est, x$omega_h$conf))))
+  colnames(out) <- c("omega_t", "omega_h")
+  row.names(out) <- c("point est", paste0(x$interval * 100, "% CI lower"),
+                      paste0(x$interval * 100, "% CI upper"))
+
+  # output:
+  cat("Call: \n")
+  print.default(x$call)
+  cat("\n")
+  print.default(out)
+  if (x$listwise) {
+    cat("\nComplete cases: ")
+    cat(x$complete_cases)
+  }
+
+  measures <- unname(x$model$fit.measures[c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr", "aic", "bic")])
+  measures <- as.numeric(sprintf("%.5f", measures))
+  names(measures) <- c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr", "aic", "bic")
+  cat("\nFit measures:\n")
+  print.default(c(measures))
+}
