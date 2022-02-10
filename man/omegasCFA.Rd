@@ -34,19 +34,23 @@ and the model fit}
 
 \item{interval}{A number specifying the confidence interval, which is Wald-type}
 
-\item{missing}{A string denoting the missing data handling, can be "pairwise" or "listwise.
+\item{missing}{A string denoting the missing data handling, can be "fiml" (full information ML) or "listwise".
 pairwise uses FIML in lavaan.}
 
 \item{fit.measures}{A logical denoting if fit.measures from the CFA should be computed}
 }
+\value{
+The point estimates and the Wald-type confidence intervals for
+omega_t and omega_h
+}
 \description{
 When supplying a data set that is multidimensional
-the function estimates the reliability of the set by means of omega-total
-and the general factor saturation of the set by means of omega-hierarchical
+the function estimates the reliability of the set by means of omega_total
+and the general factor saturation of the set by means of omega_hierarchical
 The procedure entails fitting a hierarchical factor model using a CFA.
 Both the higher-order (second-order) and the bi-factor model can be used in the CFA.
 The CFA is fit using lavaan 'Yves Rosseel', <https://CRAN.R-project.org/package=lavaan>.
-Coefficients omega-t and omega-h can be computed from the factor model parameters.
+Coefficients omega_t and omega_h can be computed from the factor model parameters.
 }
 \examples{
 res <- omegasCFA(upps, n.factors = 5, model = "balanced", model.type = "bi-factor",

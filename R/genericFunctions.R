@@ -98,7 +98,8 @@ print.summary.strel <- function(x, ...) {
   mat[, 3] <- x$int$low
   mat[, 4] <- x$int$up
   row.names(mat) <- row.names(x$est)
-  colnames(mat) <- c("estimate", "", "interval.low", "interval.up")
+  colnames(mat) <- c("point est", "", paste0(x$interval * 100, "% CI lower"),
+                     paste0(x$interval * 100, "% CI upper"))
 
   cat("Call: \n")
   print.default(x$call)
@@ -106,9 +107,9 @@ print.summary.strel <- function(x, ...) {
   cat("Results: \n")
   print(mat, right = FALSE)
   cat("\n")
-  cat("uncertainty interval: ")
-  cat(x$interval, "\n")
-
+  if (!is.null(x$n.iter)) {
+    cat("Bayesian point est is the posterior mean \n")
+  }
   if (length(grep("freq", x$est)) > 0) {
 
     if (!is.null(x$inv.mat)) {
@@ -227,9 +228,14 @@ print.omegasCFA <- function(x, ...) {
     cat(x$complete_cases)
   }
 
-  measures <- unname(x$model$fit.measures[c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr", "aic", "bic")])
-  measures <- as.numeric(sprintf("%.5f", measures))
-  names(measures) <- c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr", "aic", "bic")
-  cat("\nFit measures:\n")
-  print.default(c(measures))
+  if (!is.null(x$model$fit.measures)) {
+    measures <- unname(x$model$fit.measures[c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr", "aic", "bic")])
+    measures <- as.numeric(sprintf("%.5f", measures))
+    names(measures) <- c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr", "aic", "bic")
+    cat("\nFit measures:\n")
+    print.default(c(measures))
+  }
+
 }
+
+

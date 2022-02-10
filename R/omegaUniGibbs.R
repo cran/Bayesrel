@@ -3,7 +3,8 @@
 # it returns the posterior distribution sample of omegas calculated from those parameters
 # source: Lee, S.-Y. (2007). Structural equation modeling: A bayesian approach(Vol. 711). JohnWiley & Sons.
 # p. 81 ff.
-omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callback = function(){}){
+omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callback = function(){},
+                         a0, b0, m0){
 
   n <- nrow(data)
   p <- ncol(data)
@@ -11,6 +12,7 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
   omm <- matrix(0, n.chains, n.iter)
   lll <- array(0, c(n.chains, n.iter, p))
   ppp <- array(0, c(n.chains, n.iter, p))
+  phis <- matrix(0, n.chains, n.iter)
 
   inds <- which(is.na(data), arr.ind = TRUE)
   dat_imp <- array(0, c(n.chains, n.iter, nrow(inds)))
@@ -18,7 +20,7 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
   # hyperparameters
   # prior multiplier for loadings variance, prior shape and rate for residuals, prior loadings,
   # prior scaling for cov matrix of factor scores, prior df for cov matrix of factor scores
-  pars <- list(H0k = 1, a0k = 2, b0k = 1, l0k = numeric(p), R0 = p, p0 = p + 2)
+  pars <- list(H0k = 1, a0k = a0, b0k = b0, l0k = rep(m0, p), R0 = p, p0 = p + 2)
 
   for (z in 1:n.chains) {
     # draw starting values for sampling from prior distributions:
@@ -56,6 +58,8 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
         dat_imp[z, i, ] <- dat_complete[inds]
         lll[z, i, ] <- out$lambda
         ppp[z, i, ] <- out$psi
+        phis[z, i] <- out$phi
+
         callback()
       }
 
@@ -66,6 +70,7 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
         omm[z, i] <- omegaBasic(oo$lambda, oo$psi)
         lll[z, i, ] <- oo$lambda
         ppp[z, i, ] <- oo$psi
+        phis[z, i] <- oo$phi
 
         wi <- oo$wi
         phi <- oo$phi
@@ -79,15 +84,18 @@ omegaSampler <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callb
 
   lll_burned <- lll[, (n.burnin + 1):n.iter, , drop = FALSE]
   ppp_burned <- ppp[, (n.burnin + 1):n.iter, , drop = FALSE]
+  phi_burned <- phis[, (n.burnin + 1):n.iter, drop = FALSE]
   lll_out <- lll_burned[, seq(1, dim(lll_burned)[2], thin), , drop = FALSE]
   ppp_out <- ppp_burned[, seq(1, dim(ppp_burned)[2], thin), , drop = FALSE]
+  phi_out <- phi_burned[, seq(1, dim(phi_burned)[2], thin), drop = FALSE]
 
   dat_imp_burned <- dat_imp[, (n.burnin + 1):n.iter, , drop = FALSE]
   dat_out <- dat_imp_burned[, seq(1, dim(dat_imp_burned)[2], thin), , drop = FALSE]
 
 
-  return(list(omega = coda::mcmc(omm_out), lambda = coda::mcmc(lll_out), psi = coda::mcmc(ppp_out),
-              dat_mis_samp_fm = coda::mcmc(dat_out)))
+  return(list(omega = coda::mcmc(omm_out),
+              lambda = lll_out, psi = ppp_out, phi = phi_out,
+              dat_mis_samp_fm = dat_out))
 }
 
 
@@ -151,4 +159,101 @@ drawStart <- function(n, p, pars) {
   wi <- wi/sd(wi) # fix variance to 1
 
   return(list(psi = psi, lambda = lambda, wi = wi, phi = phi))
+}
+
+
+omegaSamplerNull <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callback = function(){},
+                             a0, b0, m0) {
+
+  n <- nrow(data)
+  p <- ncol(data)
+
+  ppp <- array(0, c(n.chains, n.iter, p))
+
+  inds <- which(is.na(data), arr.ind = TRUE)
+  dat_imp <- array(0, c(n.chains, n.iter, nrow(inds)))
+
+  # hyperparameters
+  # prior multiplier for loadings variance, prior shape and rate for residuals, prior loadings,
+  # prior scaling for cov matrix of factor scores, prior df for cov matrix of factor scores
+  pars <- list(H0k = 1, a0k = a0, b0k = b0, l0k = rep(m0, p), R0 = p, p0 = p + 2)
+
+  for (z in 1:n.chains) {
+    # draw starting values for sampling from prior distributions:
+    wi <- numeric(n)
+    phi <- 0
+
+    if (pairwise) { # missing data
+      dat_complete <- data
+      dat_complete[inds] <- colMeans(data, na.rm = TRUE)[inds[, 2]]
+      ms <- rep(0, p)
+
+      for (i in 1:n.iter) {
+        out <- sampleFMParamsNull(dat_complete, pars)
+        wi <- out$wi
+        phi <- out$phi
+        cc <- out$cc
+        # substitute missing values one by one, where each value is drawn conditional on the rest of the data
+        cols <- unique(inds[, 2])
+        for (ccc in cols) {
+          rows <- inds[which(inds[, 2] == ccc), 1]
+          mu1 <- ms[ccc]
+          mu2 <- ms[-ccc]
+          cc11 <- cc[ccc, ccc]
+          cc21 <- cc[-ccc, ccc]
+          cc12 <- cc[ccc, -ccc]
+          cc22 <- cc[-ccc, -ccc]
+          ccq <- cc11 - cc12 %*% try(solve(cc22)) %*% cc21
+          for (r in rows) {
+            muq <- mu1 + cc12 %*% try(solve(cc22)) %*% (as.numeric(dat_complete[r, -ccc]) - mu2)
+            dat_complete[r, ccc] <- rnorm(1, muq, sqrt(ccq))
+          }
+        }
+        dat_imp[z, i, ] <- dat_complete[inds]
+        ppp[z, i, ] <- out$psi
+        callback()
+      }
+
+    } else { # no missing data
+
+      for (i in 1:n.iter){
+        oo <- sampleFMParamsNull(data, pars)
+        ppp[z, i, ] <- oo$psi
+
+        callback()
+      }
+    }
+  }
+
+  ppp_burned <- ppp[, (n.burnin + 1):n.iter, , drop = FALSE]
+  ppp_out <- ppp_burned[, seq(1, dim(ppp_burned)[2], thin), , drop = FALSE]
+
+  dat_imp_burned <- dat_imp[, (n.burnin + 1):n.iter, , drop = FALSE]
+  dat_out <- dat_imp_burned[, seq(1, dim(dat_imp_burned)[2], thin), , drop = FALSE]
+
+  return(list(psi = ppp_out,
+              dat_mis_samp_fm = dat_out))
+}
+
+sampleFMParamsNull <- function(data, pars) {
+  n <- nrow(data)
+  p <- ncol(data)
+
+  R0 <- 0 # prior shape for wishart distribution for variance of factor scores (wi)
+  p0 <- 0 # prior df for wishart distribution for variance of factor scores (wi)
+
+  a0k <- pars$a0k # prior shape parameter for gamma function for psis
+  b0k <- pars$b0k # prior rate parameter for gamma for psi
+
+  bekk <- b0k + 0.5 * (t(data) %*% data)
+  bek <- diag(bekk)
+
+  #  sample psi and lambda
+  invpsi <- rgamma(p, n/2 + a0k, bek)
+  invPsi <- diag(invpsi)
+  psi <- 1/invpsi
+
+  cc <- diag(psi) # phi = 1 is bad!
+
+  return(list(psi = psi, cc = cc))
 }

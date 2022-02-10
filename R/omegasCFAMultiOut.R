@@ -11,6 +11,11 @@ omegasCFAMultiOut <- function(data, n.factors, interval, pairwise, model, model.
   out$omega_h$est <- om_out$omhmean
   out$omega_h$conf <- c(om_out$omhlow, om_out$omhup)
 
+  out$loadings$specific <- om_out$lambda
+  out$residuals$specific <- om_out$theta
+  out$loadings$general <- om_out$gloads
+  out$residuals$general <- om_out$psi
+
   out$model <- om_out$modfile
   if (fit.measures) {
     out$fit.measures <- om_out$fit.measures

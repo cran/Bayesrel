@@ -3,12 +3,12 @@
 # to be passed on for forther analysis
 
 gibbsFun <- function(data, estimates, n.iter, n.burnin, thin, n.chains, interval, item.dropped, pairwise,
-                     callback = function(){}) {
+                     callback = function(){}, k0, df0, a0, b0, m0) {
   p <- ncol(data)
   res <- list()
   if ("alpha" %in% estimates || "lambda2" %in% estimates || "lambda4" %in% estimates || "lambda6" %in% estimates ||
       "glb" %in% estimates) {
-    tmp_out <- covSamp(data, n.iter, n.burnin, thin, n.chains, pairwise, callback)
+    tmp_out <- covSamp(data, n.iter, n.burnin, thin, n.chains, pairwise, callback, k0, df0)
 
     C <- tmp_out$cov_mat
     res$covsamp <- C
@@ -97,11 +97,12 @@ gibbsFun <- function(data, estimates, n.iter, n.burnin, thin, n.chains, interval
 
   # special case omega -----------------------------------------------------------------
   if ("omega" %in% estimates) {
-    om_samp <- omegaSampler(data, n.iter, n.burnin, thin, n.chains, pairwise, callback)
+    om_samp <- omegaSampler(data, n.iter, n.burnin, thin, n.chains, pairwise, callback, a0, b0, m0)
     res$samp$Bayes_omega <- om_samp$omega
     res$data_mis_samp_fm <- om_samp$dat_mis_samp_fm
     res$loadings <- apply(om_samp$lambda, 3, as.vector)
     res$resid_var <- apply(om_samp$psi, 3, as.vector)
+    res$f_var <- c(om_samp$phi)
 
     int <- coda::HPDinterval(coda::mcmc(as.vector(res$samp$Bayes_omega)), prob = interval)
     res$cred$low$Bayes_omega <- int[1]
@@ -112,7 +113,8 @@ gibbsFun <- function(data, estimates, n.iter, n.burnin, thin, n.chains, interval
       om_samp_ifitem <- array(0, c(n.chains, length(seq(1, n.iter - n.burnin, thin)), p))
       for (i in 1:p) {
         tmp <- data[, -i]
-        om_samp_ifitem[, , i] <- omegaSampler(tmp, n.iter, n.burnin, thin, n.chains, pairwise, callback)$omega
+        om_samp_ifitem[, , i] <- omegaSampler(tmp, n.iter, n.burnin, thin, n.chains,
+                                              pairwise, callback, a0, b0, m0)$omega
       }
       res$ifitem$samp$omega <- om_samp_ifitem
       res$ifitem$est$omega <- apply(om_samp_ifitem, 3, mean)

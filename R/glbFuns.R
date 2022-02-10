@@ -159,3 +159,5 @@ constraints_R2csdp2 <- function(A, prob.info) {
   }
   lapply(seq_along(A), do.one.constraint)
 }
+
+

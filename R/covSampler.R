@@ -4,7 +4,7 @@
 # Murphy, K. P. (2007). Conjugate bayesian analysis of the gaussian distribution (Tech. Rep.).
 # University of British Columbia.
 
-covSamp <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callback = function(){}){
+covSamp <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callback = function(){}, k0, df0){
   p <- ncol(data)
 
   c_post <- array(0, c(n.chains, n.iter, p, p))
@@ -19,7 +19,7 @@ covSamp <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callback =
       dat_complete[inds] <- colMeans(data, na.rm = TRUE)[inds[, 2]]
       # now the missing are being replaced in each iteration with draws from the conditional joints
       for (i in 1:n.iter) {
-        pars <- preCompCovParams(dat_complete)
+        pars <- preCompCovParams(dat_complete, k0, df0)
         cc <- sampleCov(pars)
         ms <- numeric(p)
         c_post[z, i, , ] <- cc
@@ -44,7 +44,7 @@ covSamp <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callback =
       }
 
     } else {
-      pars <- preCompCovParams(data)
+      pars <- preCompCovParams(data, k0, df0)
       for (i in 1:n.iter){
         c_post[z, i, , ] <- sampleCov(pars) # sample from inverse Wishart
         callback()
@@ -62,16 +62,16 @@ covSamp <- function(data, n.iter, n.burnin, thin, n.chains, pairwise, callback =
   return(list(cov_mat = c_post_out, dat_mis_samp_cov = dat_out))
 }
 
-preCompCovParams <- function(data) {
+preCompCovParams <- function(data, k0, df0) {
   n <- nrow(data)
   p <- ncol(data)
   # posterior covariance matrix ---------------------------------------------------
-  k0 <- 1e-10
-  v0 <- p
+  k0 <- k0
+  if (is.null(df0)) df0 <- p
   t <- diag(p)
   T0 <- diag(k0, nrow = p, ncol = p) # matrix inversion of diagonal matrix
   mu0 <- rep(0, p) # prior means
-  vn <- v0 + n
+  vn <- df0 + n
 
   ym <- .colMeans(data, n, p)
   S <- cov(sweep(data, 2L, ym, `-`)) * (n - 1)

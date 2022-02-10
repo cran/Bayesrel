@@ -1,14 +1,18 @@
 
 
-test_that("Bayesian omegas are correct, missing pairwise", {
+test_that("Bayesian omegas are correct, missing pairwise, and fit indices are good", {
 
   data(upps, package = "Bayesrel")
   set.seed(1234)
   ee <- Bayesrel::bomegas(upps, n.factors = 5, n.iter = 200, n.burnin = 50, n.chains = 2)
 
   expect_equal(c(ee$omega_t$mean, ee$omega_t$cred, ee$omega_h$mean, ee$omega_h$cred),
-               c(0.8624918, 0.8459065, 0.8793787, 0.6401878, 0.5973778, 0.6870752), tolerance = 1e-3)
+               c(0.8633604, 0.8448201, 0.8790073, 0.6399786, 0.5956023, 0.6922816),
+               tolerance = 1e-3)
 
+  ff <- secoFit(ee, upps, ppc = FALSE, cutoff = .06)
+  expect_equal(c(unlist(ff, use.names = FALSE)), c(409.03892661, 0.07028219, 0.05616901, 0.05424941, 0.05760252,
+                                                   1.00000000), tolerance = 1e-3)
 
 })
 
@@ -27,8 +31,7 @@ test_that("Bayesian omegas are correct, missing listwise, model sytnax specified
                           missing = "listwise", model = mod)
 
   expect_equal(c(ee$omega_t$mean, ee$omega_t$cred, ee$omega_h$mean, ee$omega_h$cred),
-               c(0.8629340, 0.8432947, 0.8822594, 0.6428649, 0.5897601, 0.6868880), tolerance = 1e-3)
-
+               c(0.8624262, 0.8451732, 0.8801895, 0.6402192, 0.5909983, 0.6860989), tolerance = 1e-3)
 
 })
 
@@ -74,5 +77,19 @@ test_that("Frequentist omegas are correct with bifactor model, missing listwise,
 
   expect_equal(c(ee$omega_t$est, ee$omega_t$conf, ee$omega_h$est, ee$omega_h$conf),
                c(0.8702046, 0.8499908, 0.8904183, 0.6275952, 0.5760795, 0.6791109), tolerance = 1e-3)
+
+})
+
+
+test_that("Bayesian omegas are correct with altered prior hyperparameters", {
+
+  data(upps, package = "Bayesrel")
+  set.seed(1234)
+  ee <- Bayesrel::bomegas(upps, n.factors = 5, n.iter = 200, n.burnin = 50, n.chains = 2,
+                          a0 = 6, b0 = 10, l0 = 1, c0 = 10, d0 = 6, beta0 = 2, p0 = 12, R0 = 5)
+
+  expect_equal(c(ee$omega_t$mean, ee$omega_t$cred, ee$omega_h$mean, ee$omega_h$cred),
+               c(0.8476525, 0.8275225, 0.8644323, 0.6255007, 0.5799303, 0.6704586),
+               tolerance = 1e-3)
 
 })

@@ -13,7 +13,18 @@ bomegas(
   n.chains = 3,
   thin = 1,
   interval = 0.95,
-  missing = "pairwise",
+  missing = "impute",
+  a0 = 2,
+  b0 = 1,
+  l0 = 0,
+  A0 = 1,
+  c0 = 2,
+  d0 = 1,
+  beta0 = 0,
+  B0 = 2.5,
+  p0 = NULL,
+  R0 = NULL,
+  param.out = FALSE,
   callback = function() { }
 )
 }
@@ -42,21 +53,66 @@ or x1, ..., xn, where 1,...,n correspond to the column numbers}
 \item{interval}{A number specifying the credible interval,
 the interval is the highest posterior desntiy interval (HPD)}
 
-\item{missing}{A string denoting the missing data handling, can be "pairwise" or "listwise.
-With pairwise the missing data will be "imputed" during the MCMC sampling
+\item{missing}{A string denoting the missing data handling, can be "impute" or "listwise".
+With impute the missing data will be estimated during the MCMC sampling
 as further unknown parameters}
+
+\item{a0}{A number for the shape of the prior inverse gamma distribution for the manifest residual variances,
+by default 2}
+
+\item{b0}{A number for the scale of the prior inverse gamma distribution for the manifest residual variances,
+by default 1}
+
+\item{l0}{A number for the mean of the prior normal distribution for the manifest loadings,
+by default 0, can be a single value or a loading matrix}
+
+\item{A0}{A number for scaling the variance of the prior normal distribution for the manifest loadings,
+by default 1}
+
+\item{c0}{A number for the shape of the prior inverse gamma distribution for the latent residual variances,
+by default 2}
+
+\item{d0}{A number for the scale of the prior inverse gamma distribution for the latent residual variances,
+by default 1}
+
+\item{beta0}{A number for the mean of the prior normal distribution for the latent loadings,
+by default 0, can be a single value or a vector}
+
+\item{B0}{A number for scaling the variance of the prior normal distribution for the latent loadings,
+by default 1}
+
+\item{p0}{A number for the shape of the prior inverse gamma distribution for the variance of the g-factor,
+by default set to q^2-q when q are the number of group factors}
+
+\item{R0}{A number for the scale of the prior inverse gamma distribution for the variance of the g-factor,
+by default set to the number of items}
+
+\item{param.out}{A logical indicating if loadings and residual variances should be attached to the result,
+by default FALSE because it saves memory}
 
 \item{callback}{An empty function for implementing a progressbar call
 from a higher program (e.g., JASP)}
 }
+\value{
+The posterior means and the highest posterior density intervals for
+omega_t and omega_h
+}
 \description{
-When supplying a data set that is multidimensional
-the function estimates the reliability of the set by means of omega-total
-and the general factor saturation of the set by means of omega-hierarchical
-In the process a higher-order factor model is estimated in the Bayesian framework,
-and posterior distributions of omega-t and omega-h are obtained from the
-posterior distributions of the factor model parameters
-The output contains the posterior distributions of omega-t and omega-h,
+When supplying a multidimensional data set
+the function estimates the reliability of the set by means of omega_total
+and the general factor saturation of the set by means of omega_hierarchical.
+
+The prior distributions of omega_t and omega_h are computed from
+the prior distributions of the second-order factor model.
+Specifically, a multivariate normal distribution for the group factor loadings and
+the factor scores; a normal distribution for the general factor loadings;
+an inverse gamma distribution for the manifest and latent residuals;
+an inverse Wishart distribution for the covariance matrix of the latent variables.
+A Gibbs sampler iteratively draws samples from the conditional posterior distributions
+of the second-order factor model parameters. The posterior distributions of omega_t
+and omega_h are computed from the posterior samples of the factor model parameters.
+
+The output contains the posterior distributions of omega_t and omega_h,
 their mean and credible intervals.
 }
 \examples{
