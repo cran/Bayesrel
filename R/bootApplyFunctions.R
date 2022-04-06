@@ -73,7 +73,7 @@ applylambda4NoCpp <- function(M, callback = function(){}){
 
 applylambda6NoCpp <- function(M, callback = function(){}){
   smc <- trySmc(M)
-  if (class(smc) == "try-error" || anyNA(smc)) {
+  if (inherits(smc, "try-error") || anyNA(smc)) {
     lambda6 <- NaN
     warning("singular bootstrapped covariance matrices encountered")
   } else {

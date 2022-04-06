@@ -1,4 +1,5 @@
 
+tol <- ifelse(testthat:::on_cran(), 1e-2, 1e-3)
 
 test_that("Bayesian omegas are correct, missing pairwise, and fit indices are good", {
 
@@ -8,11 +9,11 @@ test_that("Bayesian omegas are correct, missing pairwise, and fit indices are go
 
   expect_equal(c(ee$omega_t$mean, ee$omega_t$cred, ee$omega_h$mean, ee$omega_h$cred),
                c(0.8633604, 0.8448201, 0.8790073, 0.6399786, 0.5956023, 0.6922816),
-               tolerance = 1e-3)
+               tolerance = tol)
 
   ff <- secoFit(ee, upps, ppc = FALSE, cutoff = .06)
   expect_equal(c(unlist(ff, use.names = FALSE)), c(409.03892661, 0.07028219, 0.05616901, 0.05424941, 0.05760252,
-                                                   1.00000000), tolerance = 1e-3)
+                                                   1.00000000), tolerance = tol)
 
 })
 
@@ -31,7 +32,7 @@ test_that("Bayesian omegas are correct, missing listwise, model sytnax specified
                           missing = "listwise", model = mod)
 
   expect_equal(c(ee$omega_t$mean, ee$omega_t$cred, ee$omega_h$mean, ee$omega_h$cred),
-               c(0.8624262, 0.8451732, 0.8801895, 0.6402192, 0.5909983, 0.6860989), tolerance = 1e-3)
+               c(0.8624262, 0.8451732, 0.8801895, 0.6402192, 0.5909983, 0.6860989), tolerance = tol)
 
 })
 
@@ -43,7 +44,7 @@ test_that("Frequentist omegas are correct with higher order model, missing pairw
   ee <- Bayesrel::omegasCFA(upps, n.factors = 5)
 
   expect_equal(c(ee$omega_t$est, ee$omega_t$conf, ee$omega_h$est, ee$omega_h$conf),
-               c(0.864759, 0.8466538, 0.8828642, 0.643837, 0.5943180, 0.6933561), tolerance = 1e-3)
+               c(0.864759, 0.8466538, 0.8828642, 0.643837, 0.5943180, 0.6933561), tolerance = tol)
 
 
 })
@@ -55,7 +56,7 @@ test_that("Frequentist omegas are correct with bifactor model, missing listwise"
   ee <- Bayesrel::omegasCFA(upps, n.factors = 5, model.type = "bi-factor", missing = "listwise")
 
   expect_equal(c(ee$omega_t$est, ee$omega_t$conf, ee$omega_h$est, ee$omega_h$conf),
-               c(0.8718139, 0.8518070, 0.8918207, 0.6309915, 0.5792708, 0.6827122), tolerance = 1e-3)
+               c(0.8718139, 0.8518070, 0.8918207, 0.6309915, 0.5792708, 0.6827122), tolerance = tol)
 
 })
 
@@ -76,7 +77,7 @@ test_that("Frequentist omegas are correct with bifactor model, missing listwise,
                             model = mod)
 
   expect_equal(c(ee$omega_t$est, ee$omega_t$conf, ee$omega_h$est, ee$omega_h$conf),
-               c(0.8702046, 0.8499908, 0.8904183, 0.6275952, 0.5760795, 0.6791109), tolerance = 1e-3)
+               c(0.8702046, 0.8499908, 0.8904183, 0.6275952, 0.5760795, 0.6791109), tolerance = tol)
 
 })
 
@@ -90,6 +91,6 @@ test_that("Bayesian omegas are correct with altered prior hyperparameters", {
 
   expect_equal(c(ee$omega_t$mean, ee$omega_t$cred, ee$omega_h$mean, ee$omega_h$cred),
                c(0.8476525, 0.8275225, 0.8644323, 0.6255007, 0.5799303, 0.6704586),
-               tolerance = 1e-3)
+               tolerance = tol)
 
 })

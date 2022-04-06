@@ -1,9 +1,9 @@
-3cbb64c6fef2a832b83870640a55a372 *DESCRIPTION
+e472795292014059dceae016cf7b3800 *DESCRIPTION
 61e5339cfc49d54f34cf593696dee82a *NAMESPACE
 621a585571b55843599683045bbf6485 *R/RcppExports.R
 cd60abee1ea1a9f83db488ea459a1a32 *R/bomegasMultiGibbs.R
 25224cc5e4f4286279f858d2f4f00bee *R/bomegasMultiOut.R
-ead26db91d1dedb4eff8ac320fca6281 *R/bootApplyFunctions.R
+f4d619201e3834fab09df606767ace58 *R/bootApplyFunctions.R
 d6e3bb1ae14e137affd587f7ecb79efc *R/covSampler.R
 63678ada61cfeed539ed0de52475c436 *R/deprecated.R
 99c9150ea4670ca9acfa324e5e205ca6 *R/freqNonParametric.R
@@ -19,14 +19,14 @@ ea9d5696d23b9d38e5bdb9fc4e2f988f *R/helpFunsOmegas.R
 a14a6baad7ba3cc28126cea7267d949a *R/omegasCFAMultiOut.R
 fbe69bcd4b9460dd3f0ad029652eb04d *R/omegasMultiLavaan.R
 a19549b41caeab369b47233c41adb017 *R/postProb.R
-755126ac9f4aca0bc32e5e7431a3a485 *R/princFac.R
+5580a61821dd8ce72f97d9dc767a94b2 *R/princFac.R
 35b9144d18684d039bd6f853b976c732 *R/reliabilityMultiBayes.R
 06a68832a7139216bbbe0ad66ad94d90 *R/reliabilityMultiFreq.R
 ed1623019a5e5aa2256ef2d57ec89136 *R/reliabilityUni.R
 5e518586d173465a8b6389f9725024d7 *R/samplePrior.R
 a21cfc63149e3466c3f84dbdcf0b53ce *R/uniGibbsOut.R
 a8a315a93b0f6308c825cbf2f0a3ccd2 *README.md
-5ce32a759d998550c073c198ec843743 *build/partial.rdb
+3dd94e4a4083f694dec7afdf5fcac9f3 *build/partial.rdb
 41446d57c9d8054b99e9ea915ee6849e *cleanup
 c1828e39c146426b981b3721a5add89e *configure
 b76a7d97691535ef0a1c5f73f64292a1 *configure.ac
@@ -150,5 +150,5 @@ d5e42d0098d3efd946aac816091bad8f *src/customsdp.h
 66bbb7f12b09c6a8d41b9da3d20b05af *src/initArma.cpp
 c2f6874a82481b2d6e6aa4f22e3bfff6 *src/pfaCpp.cpp
 3026a813e1ac7255acc5c5501ab57128 *tests/testthat.R
-f94c47afa502cb022b8775bdd1a66bae *tests/testthat/testOmegas.R
-2302e82164e57adebd2b29840f4b57fc *tests/testthat/testStrel.R
+54d4bc3010d628b22c5e3c17171a44bc *tests/testthat/testOmegas.R
+57806a1f60d457b3ff76dc3ebad425df *tests/testthat/testStrel.R
