@@ -25,7 +25,8 @@ bomegas(
   p0 = NULL,
   R0 = NULL,
   param.out = FALSE,
-  callback = function() { }
+  callback = function() {
+ }
 )
 }
 \arguments{

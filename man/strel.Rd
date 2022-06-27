@@ -23,7 +23,8 @@ strel(
   omega.freq.method = "cfa",
   omega.int.analytic = TRUE,
   alpha.int.analytic = TRUE,
-  callback = function() { },
+  callback = function() {
+ },
   k0 = 1e-10,
   df0 = NULL,
   a0 = 2,

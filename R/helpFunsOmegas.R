@@ -27,15 +27,16 @@ omegaBasic <- function(l, e) {
 }
 
 # omegas
-omegasSeco <- function(lambda, beta, theta, psi) {
+omegasSeco <- function (lambda, beta, theta, psi) {
   gl <- lambda %*% beta
   sl <- lambda %*% sqrt(psi)
-  omh <- sum(gl %*% t(gl)) / (sum(gl %*% t(gl)) + sum(sl %*% t(sl)) + sum(theta))
-  omt <- (sum(gl %*% t(gl)) + sum(sl %*% t(sl))) / (sum(gl %*% t(gl)) + sum(sl %*% t(sl)) + sum(theta))
-
-  return(c(
-    omh, omt
-  ))
+  sum_gl_glt <- sum_X_Xt(gl)
+  sum_sl_slt <- sum_X_Xt(sl)
+  sum_theta  <- sum(theta)
+  temp <- sum_gl_glt + sum_sl_slt
+  omh <- sum_gl_glt / (temp + sum_theta)
+  omt <- temp / (temp + sum_theta)
+  return(c(omh, omt))
 }
 
 omegasBif <- function(sl, gl, e, psi) {
@@ -433,4 +434,45 @@ dmultinorm <- function(x, varcov, mm = 0) {
 implCovUni <- function(ll) {
   out <- ll[1, ] %*% t(ll[1, ]) + diag(ll[2, ])
   return(make_symmetric(out))
+}
+
+
+Xt_A_X <- function(A, X) {
+  crossprod(X, A %*% X)
+}
+
+X_A_Xt <- function(A, X) {
+  tcrossprod(X %*% A, X)
+}
+
+Xt_invA_X_0 <- function(A, x) {
+  t(x) %*% solve(A) %*% x
+}
+
+Xt_invA_X_1 <- function(A, x) {
+  crossprod(x, solve(A, x))
+}
+
+Xt_invA_X_2 <- function(A, x) {
+  Xt_invChol_X_2(chol(A), x)
+}
+
+Xt_invChol_X_2 <- function(L, x) {
+  crossprod(backsolve(L, x, transpose = TRUE))
+}
+
+diag_Xt_Y <- function(X, Y) {
+  # based on https://stackoverflow.com/a/42569902/ but does diag(t(X) %*% Y) rather than diag(X %*% Y)
+  .colSums(X * Y, nrow(X), ncol(Y))
+}
+diag_Xt_X <- function(X) diag_Xt_Y(X, X)
+
+diag_X_Yt <- function(X, Y){
+  .rowSums(X * Y, nrow(X), ncol(Y))
+}
+
+diag_X_Xt <- function(X) diag_X_Yt(X, X)
+
+sum_X_Xt <- function(X) {
+  crossprod(.colSums(X, nrow(X), ncol(X)))
 }

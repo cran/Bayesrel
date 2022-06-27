@@ -14,6 +14,8 @@ omegaMultiB <- function(data, ns, n.iter, n.burnin, n.chains, thin, model, pairw
   # ---- check missingsness ----
   inds <- which(is.na(data), arr.ind = TRUE)
   imputed <- array(0, c(n.chains, n.iter, nrow(inds)))
+  inds_split <- split(inds[, 1], inds[, 2])
+  unique_cols <- unique(inds[, 2])
 
   # ---- sampling start --------
 
@@ -77,8 +79,10 @@ omegaMultiB <- function(data, ns, n.iter, n.burnin, n.chains, thin, model, pairw
 
         # substitute missing values one by one, where each value is drawn conditional on the rest of the data
         # see https://en.wikipedia.org/wiki/Multivariate_normal_distribution#Conditional_distributions
-        cols <- unique(inds[, 2])
-        for (ccc in cols) {
+        for (ic in seq_along(unique_cols)) {
+          ccc <- unique_cols[[ic]]
+          #
+          # for (ccc in cols) {
           rows <- inds[which(inds[, 2] == ccc), 1]
           mu1 <- ms[ccc]
           mu2 <- ms[-ccc]
@@ -86,9 +90,15 @@ omegaMultiB <- function(data, ns, n.iter, n.burnin, n.chains, thin, model, pairw
           cc21 <- cc[-ccc, ccc]
           cc12 <- cc[ccc, -ccc]
           cc22 <- cc[-ccc, -ccc]
-          ccq <- cc11 - cc12 %*% try(solve(cc22)) %*% cc21
+
+          cc22_chol <- chol(cc22)
+          ccq <- cc11 - Xt_invChol_X_2(cc22_chol, cc21)
+
+          cc12_cc22_inv <- forwardsolve(cc22_chol, backsolve(cc22_chol, cc12, transpose = TRUE), upper.tri = TRUE)
+          # == cc12 %*% chol2inv(cc22_chol) ==
+          rows <- inds_split[[ic]]
           for (r in rows) {
-            muq <- mu1 + cc12 %*% try(solve(cc22)) %*% (as.numeric(dat_filled[r, -ccc]) - mu2)
+            muq <- mu1 + cc12_cc22_inv %*% (as.numeric(dat_filled[r, -ccc]) - mu2)
             dat_filled[r, ccc] <- rnorm(1, muq, sqrt(ccq))
           }
         }
@@ -183,15 +193,16 @@ sampleSecoParams <- function(data, pars, wi, phiw, ns, idex) {
   for (ii in 1:ns) {
 
     ids <- idex[[ii]]
-    Ak <- solve(1 / H0k[ii] + t(wi[, ii + 1]) %*% wi[, ii + 1])
-    ak <- Ak %*% (c(1 / H0k[ii]) %*% t(l0k[ids, ii]) + wi[, ii + 1] %*% data[, ids])
-    bekk <- b0k + 0.5 * (t(data[, ids]) %*% data[, ids]
-                         - t(ak) %*% solve(Ak) %*% ak
-                         + (l0k[ids, ii] * (1 / H0k[ii])) %*% t(l0k[ids, ii]))
-    bek <- diag(bekk)
+    Ak_inv <- 1 / H0k[ii] + sum(wi[, ii + 1]^2)
+    ak <- (c(1 / H0k[ii]) %*% t(l0k[ids, ii]) + wi[, ii + 1] %*% data[, ids]) / c(Ak_inv)
+    # computes the diagonal of bekk directly - maybe precompute diag_Xt_X(data[, ids] for all ids?
+    bekk <- b0k + 0.5 * (diag_Xt_X(data[, ids]) - diag_Xt_X(ak) * Ak_inv + diag_X_Xt(l0k[ids, ii, drop = FALSE]) / H0k[ii])
+    bek <- bekk
+
+
     invpsi <- rgamma(length(ids), n / 2 + a0k, bek)
     psi <- 1 / invpsi
-    lambda <- rnorm(length(ids), ak, sqrt(psi * as.vector(Ak)))
+    lambda <- rnorm(length(ids), ak, sqrt(psi * as.vector(1 / Ak_inv)))
 
     ll[ids, ii] <- lambda
     pp[ids] <- psi
@@ -199,12 +210,12 @@ sampleSecoParams <- function(data, pars, wi, phiw, ns, idex) {
   }
 
   # ------- structural equation -----
-  Akw <- 1 / (1 / H0kw + c(t(wi[, 1]) %*% wi[, 1]))
-  akw <- Akw * (1 / H0kw * beta0k + t(wi[, 1]) %*% wi[, 2:(ns + 1)])
-  bekkw <- b0kw + 0.5 * (t(wi[, 2:(ns + 1)]) %*% wi[, 2:(ns + 1)]
-                         - ((t(akw) * (1 / Akw)) %*% akw)
-                         + (beta0k * (1 / H0kw)) %*% t(beta0k))
-  bekw <- diag(bekkw)
+  Akw <- 1 / (1 / H0kw + c(crossprod(wi[, 1])))
+  akw <- Akw * (1 / H0kw * beta0k + crossprod(wi[, 1], wi[, 2:(ns + 1)]))
+
+  # computes the diagonal of bekk directly
+  bekkw <- b0kw + 0.5 * (diag_Xt_X(wi[, 2:(ns + 1)]) - diag_Xt_X(akw) / Akw + diag_Xt_X(matrix(beta0k, 1)) / H0kw)
+  bekw <- bekkw
 
   invpsiw <- rgamma(ns, n / 2 + a0kw, bekw)
   psiw <- 1 / invpsiw
@@ -215,23 +226,27 @@ sampleSecoParams <- function(data, pars, wi, phiw, ns, idex) {
   betaMat <- matrix(0, ns + 1, ns + 1)
   betaMat[2:(ns + 1), 1] <- beta
   ident <- diag(ns + 1)
-  identInv <- solve(ident - betaMat)
-  psid <- diag(c(1, psiw))
-  sigW <- identInv %*% psid %*% t(identInv)
-  invsigW <- solve(sigW)
+  identInv <- ident + betaMat # note: (ident + betaMat) %*% (ident - betaMat) == ident
+
+  invsigW <- crossprod(sweep(ident - betaMat, 1L, c(1, sqrt(psiw)), `/`))
+
 
   lll <- cbind(0, ll)
-  impM <- t(lll) %*% solve(diag(pp)) %*% lll
+  lll_temp <- sweep(lll, 1L, pp, `/`) # solve(diag(pp)) %*% lll
+  impM <- crossprod(lll_temp, lll)
 
-  mw <- solve(invsigW + impM) %*% t(lll) %*% solve(diag(pp)) %*% t(data)
+  # This solve can be optimized using blockwise inversion, assuming that (1) impM is always diagonal and (2) invsigW is diagonal except for the first row/ column
   Vw <- solve(invsigW + impM)
+  mw <- Vw %*% tcrossprod(t(lll_temp), data)
 
   wi <- genNormDataTweak(n, t(mw), Vw)
   # set factor variance to 1 to identify the model
   wi <- apply(wi, 2, function(x) x / sd(x))
 
   # sample phi for g-factor:
-  phiw <-  diag(1 / rgamma(ns + 1, shape = (n + pars$p0w) / 2, scale = 2 / diag(t(wi) %*% (wi) + pars$R0winv)))
+  scale <- 2 / (.colSums(wi * wi, nrow(wi), ncol(wi)) + diag(pars$R0winv))
+  phiw <-  diag(1 / rgamma(ns + 1, shape = (n + pars$p0w) / 2, scale = scale))
+  # phiw <-  diag(1 / rgamma(ns + 1, shape = (n + pars$p0w) / 2, scale = 2 / diag(t(wi) %*% (wi) + pars$R0winv)))
 
   return(list(theta = pp, lambda = ll, psiw = psiw, beta = beta, wi = wi, phiw = phiw))
 }

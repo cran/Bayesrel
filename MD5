@@ -1,8 +1,8 @@
-e472795292014059dceae016cf7b3800 *DESCRIPTION
+f2234da8f9e96332d5678203f01ab078 *DESCRIPTION
 61e5339cfc49d54f34cf593696dee82a *NAMESPACE
 621a585571b55843599683045bbf6485 *R/RcppExports.R
-cd60abee1ea1a9f83db488ea459a1a32 *R/bomegasMultiGibbs.R
-25224cc5e4f4286279f858d2f4f00bee *R/bomegasMultiOut.R
+531deb2ede2d3423a2629d035e2a3d5b *R/bomegasMultiGibbs.R
+b186a21db2c77fae38f4e81464ddd48c *R/bomegasMultiOut.R
 f4d619201e3834fab09df606767ace58 *R/bootApplyFunctions.R
 d6e3bb1ae14e137affd587f7ecb79efc *R/covSampler.R
 63678ada61cfeed539ed0de52475c436 *R/deprecated.R
@@ -11,7 +11,7 @@ a76ddaa41bbbac30c4d02cbaa5dbe957 *R/freqParametric.R
 229a8af3fa78c5a73f6eb3f809b4b29c *R/genericFunctions.R
 6fede017104b1c296ed1dceefc5f3397 *R/glbFuns.R
 0624d4522849ae8bb6a32df871fdb36d *R/helpFuns.R
-ea9d5696d23b9d38e5bdb9fc4e2f988f *R/helpFunsOmegas.R
+7ac0d43732f336f55ffcb0d58cfe0710 *R/helpFunsOmegas.R
 56f903c6233584eeb94164cd09c8acbd *R/maxSplitHalf.R
 2c4f13d3a85c9d0f99a6836cf2fd8c47 *R/omegaFit.R
 1cc817b1195d886bd9d34b455367e249 *R/omegaFreq.R
@@ -26,7 +26,7 @@ ed1623019a5e5aa2256ef2d57ec89136 *R/reliabilityUni.R
 5e518586d173465a8b6389f9725024d7 *R/samplePrior.R
 a21cfc63149e3466c3f84dbdcf0b53ce *R/uniGibbsOut.R
 a8a315a93b0f6308c825cbf2f0a3ccd2 *README.md
-3dd94e4a4083f694dec7afdf5fcac9f3 *build/partial.rdb
+cf4bbab3532cad02d8579ac929e39062 *build/partial.rdb
 41446d57c9d8054b99e9ea915ee6849e *cleanup
 c1828e39c146426b981b3721a5add89e *configure
 b76a7d97691535ef0a1c5f73f64292a1 *configure.ac
@@ -38,7 +38,7 @@ d26e903e5f9eb575553cc411e0482505 *inst/REFERENCES.bib
 352d012770204ecffa7ee3761697d5a1 *man/Bayesrel-deprecated.Rd
 dd27144bcc869aaacabc0f433d165ffe *man/asrm.Rd
 bb45919b444b404129a3e406e990cc45 *man/asrm_mis.Rd
-3c26f8225a08cd79cb65c8b29f319ff0 *man/bomegas.Rd
+c9b1208e102641e007b088ba405692b0 *man/bomegas.Rd
 78f10f1fd6ea63e5174c9bf68547a46a *man/cavalini.Rd
 89494a1c81cba212d22f34a5162ba09e *man/omegaFit.Rd
 36100fadfa2f453016f499e3b1512a00 *man/omega_fit-deprecated.Rd
@@ -49,7 +49,7 @@ bb45919b444b404129a3e406e990cc45 *man/asrm_mis.Rd
 f5ff36d2e1fcecb4b7e1bfaa0ef16e9d *man/p_strel-deprecated.Rd
 190bf3322fe7987248a48aad99b3111d *man/secoFit.Rd
 34c9e19ba87d5fbe7a8a8ac7e0531635 *man/seco_fit-deprecated.Rd
-e4cd65aa79c3a57b635b01c88737c7d2 *man/strel.Rd
+bd4a608a9dc301be45cefab3915538da *man/strel.Rd
 3456ed32467955e78d25d4ea5b53c8b5 *man/upps.Rd
 1a23392e1f78f48e14cfd3f375dfc4e5 *src/BayesrelCpp.cpp
 66640aa35694deed3d879fe88b72708c *src/Csdp/AUTHORS
