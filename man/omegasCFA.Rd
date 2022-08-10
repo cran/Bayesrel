@@ -10,7 +10,7 @@ omegasCFA(
   model = "balanced",
   model.type = "higher-order",
   interval = 0.95,
-  missing = "pairwise",
+  missing = "fiml",
   fit.measures = FALSE
 )
 }
@@ -34,10 +34,12 @@ and the model fit}
 
 \item{interval}{A number specifying the confidence interval, which is Wald-type}
 
-\item{missing}{A string denoting the missing data handling, can be "fiml" (full information ML) or "listwise".
-pairwise uses FIML in lavaan.}
+\item{missing}{A string denoting the missing data handling, can be "fiml" (full information ML) or "listwise".}
 
-\item{fit.measures}{A logical denoting if fit.measures from the CFA should be computed}
+\item{fit.measures}{A logical denoting if fit.measures from the CFA should be computed,
+the output then contains the chisq statistic, chisq df, chisq p-value, cfi, tli,
+rmsea, rmsea 90\% ci lower, rmsea 90\% ci upper, rmsea<.05 p-value, aic, bic,
+unbiased srmr, unbiased srmr 90\% ci lower, unbiased srmr 90\% ci upper, unbiased srmr<.05 p-value}
 }
 \value{
 The point estimates and the Wald-type confidence intervals for

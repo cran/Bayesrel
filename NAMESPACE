@@ -2,6 +2,7 @@
 
 S3method(print,bomegas)
 S3method(print,omegasCFA)
+S3method(print,secoFit)
 S3method(print,strel)
 S3method(print,summary.strel)
 S3method(summary,strel)

@@ -206,15 +206,16 @@ secoFit <- function(x, data, ppc = TRUE, cutoff = .08, ci = .90) {
   pD <- Dm - Dtm # effective number of parameters (free parameters)
   rmsea <- BRMSEA(LR_obs, pstar, pD, n)
   srmr_m <- SRMR(sigma, implM)
-  # srmr <- apply(implieds, 1, SRMR, cdat = sigma)
+  srmr <- apply(implieds, 1, SRMR, cdat = sigma)
 
   prob <- mean(rmsea < cutoff)
 
   rmsea_ci <- as.numeric(coda::HPDinterval(coda::mcmc(rmsea), prob = ci))
   names(rmsea_ci) <- paste0(ci*100, "% ",  c("lower", "upper"))
-  out <- list(LR = Dtm, srmr = srmr_m, rmsea = mean(rmsea),
-              rmsea_ci = rmsea_ci, p_rmsea = prob)
+  out <- list(LR = Dtm, srmr_pointEst = srmr_m, srmr_samp = srmr, rmsea_pointEst = mean(rmsea),
+              rmsea_ci = rmsea_ci, p_rmsea = prob, rmsea_samp = rmsea)
 
+  class(out) <- "secoFit"
   return(out)
 }
 

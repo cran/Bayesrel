@@ -1,6 +1,4 @@
 
-
-
 #' Estimate reliability estimates for multidimensional scales in the frequentist framework
 #' @description When supplying a data set that is multidimensional
 #' the function estimates the reliability of the set by means of omega_total
@@ -25,8 +23,10 @@
 #' and the model fit
 #' @param interval A number specifying the confidence interval, which is Wald-type
 #' @param missing A string denoting the missing data handling, can be "fiml" (full information ML) or "listwise".
-#' pairwise uses FIML in lavaan.
-#' @param fit.measures A logical denoting if fit.measures from the CFA should be computed
+#' @param fit.measures A logical denoting if fit.measures from the CFA should be computed,
+#' the output then contains the chisq statistic, chisq df, chisq p-value, cfi, tli,
+#' rmsea, rmsea 90\% ci lower, rmsea 90\% ci upper, rmsea<.05 p-value, aic, bic,
+#' unbiased srmr, unbiased srmr 90\% ci lower, unbiased srmr 90\% ci upper, unbiased srmr<.05 p-value
 #'
 #' @return The point estimates and the Wald-type confidence intervals for
 #' omega_t and omega_h
@@ -51,7 +51,7 @@ omegasCFA <- function(
   model = "balanced",
   model.type = "higher-order",
   interval = .95,
-  missing = "pairwise",
+  missing = "fiml",
   fit.measures = FALSE) {
 
   listwise <- FALSE

@@ -12,8 +12,9 @@ test_that("Bayesian omegas are correct, missing pairwise, and fit indices are go
                tolerance = tol)
 
   ff <- secoFit(ee, upps, ppc = FALSE, cutoff = .06)
-  expect_equal(c(unlist(ff, use.names = FALSE)), c(409.03892661, 0.07028219, 0.05616901, 0.05424941, 0.05760252,
-                                                   1.00000000), tolerance = tol)
+  expect_equal(as.numeric(c(ff$LR, ff$srmr_pointEst, ff$rmsea_pointEst, ff$rmsea_ci, ff$p_rmsea)),
+               c(409.03892661, 0.07028219, 0.05616901, 0.05424941, 0.05760252,
+                 1.00000000), tolerance = tol)
 
 })
 

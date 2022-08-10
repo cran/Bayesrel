@@ -67,6 +67,11 @@ omegaMultiF <- function(data, n.factors, interval, pairwise, model, model.type, 
 
   if (fit.measures) {
     modfile$fit.measures <- lavaan::fitmeasures(fit)
+    if (pairwise) {
+      modfile$srmr.summary <- lavaan::lavResiduals(fit)$summary["total"]
+    } else {
+      modfile$srmr.summary <- lavaan::lavResiduals(fit)$summary["cov"]
+    }
   }
 
 
