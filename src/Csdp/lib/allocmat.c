@@ -8,9 +8,7 @@
 #include <stdio.h>
 #include "declarations.h"
 
-void alloc_mat(A,pB)
-     struct blockmatrix A;
-     struct blockmatrix *pB;
+void alloc_mat(struct blockmatrix A, struct blockmatrix *pB)
 {
   int blk;
 
@@ -63,8 +61,7 @@ void alloc_mat(A,pB)
 }
 
 
-void free_mat(A)
-     struct blockmatrix A;
+void free_mat(struct blockmatrix A)
 {
   int blk;
 

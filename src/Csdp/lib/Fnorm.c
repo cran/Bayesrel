@@ -6,8 +6,7 @@
 #include <math.h>
 #include "declarations.h"
 
-double Fnorm(A)
-     struct blockmatrix A;
+double Fnorm(struct blockmatrix A)
 {
   int blk;
   double nrm;
@@ -42,8 +41,7 @@ double Fnorm(A)
  * The Knorm is the sum of the Fnorms of the blocks.
  */
 
-double Knorm(A)
-     struct blockmatrix A;
+double Knorm(struct blockmatrix A)
 {
   int blk;
   double nrm;
@@ -74,8 +72,7 @@ double Knorm(A)
 }
 
 
-double mat1norm(A)
-     struct blockmatrix A;
+double mat1norm(struct blockmatrix A)
 {
   int blk;
   double nrm;
@@ -106,8 +103,7 @@ double mat1norm(A)
 }
 
 
-double matinfnorm(A)
-     struct blockmatrix A;
+double matinfnorm(struct blockmatrix A)
 {
   int blk;
   int i;

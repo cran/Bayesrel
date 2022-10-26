@@ -28,8 +28,8 @@ int custom_sdpCpp(
      double *pdobj,
      const arma::cube& car,
      arma::dvec& out,
-	 Rcpp::Function func,
-	 const bool carHasMoreThan1Row,
+	   Rcpp::Function func,
+	   const bool carHasMoreThan1Row,
      const int printlevel)
 {
   int ret;
@@ -66,11 +66,9 @@ int custom_sdpCpp(
   struct sparseblock *oldptr;
   int i;
   int j;
-  int blk;
   struct sparseblock *p;
   struct sparseblock *q;
   struct sparseblock *prev=NULL;
-  int nnz;
   struct blockmatrix X, Z;
   double *y;
 
@@ -334,8 +332,6 @@ int custom_sdpCpp(
      {
        if (p->nextbyblock == NULL)
          {
-           blk=p->blocknum;
-
            /*
         * link in the remaining blocks.
         */
@@ -416,7 +412,6 @@ int custom_sdpCpp(
      * Compute the nonzero structure of O.
      */
 
-    nnz=structnnz(n,k,C,constraints);
 
     /*
      * Sort entries in diagonal blocks of constraints.
@@ -469,8 +464,6 @@ int custom_sdpCpp(
 		out(i) = (scv - svars + out(i)) / scv;
 
 	}
-
-
 
    /*
     *  Now, free up all of the storage.

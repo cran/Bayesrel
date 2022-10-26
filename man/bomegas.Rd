@@ -2,12 +2,12 @@
 % Please edit documentation in R/reliabilityMultiBayes.R
 \name{bomegas}
 \alias{bomegas}
-\title{Estimate reliability estimates for multidimensional scales in the Bayesian framework}
+\title{Estimate Bayesian reliability estimates for multidimensional scales following a second-order factor model}
 \usage{
 bomegas(
   data,
   n.factors,
-  model = "balanced",
+  model = NULL,
   n.iter = 2000,
   n.burnin = 200,
   n.chains = 3,
@@ -35,13 +35,13 @@ rows = observations, columns = variables/items}
 
 \item{n.factors}{A number specifying the number of group factors that the items load on}
 
-\item{model}{A string that by default ("balanced") distributes the items evenly
+\item{model}{A string that by default NULL (=balanced) distributes the items evenly
 among the number of group factors. This only works if the items are a multiple of
 the number of group factors and the items are already grouped in the data set,
 meaning, e.g., items 1-5 load on one factor, 6-10 on another, and so on.
 A model file can be specified in lavaan syntax style (f1=~.+.+.) to relate the items
-to the group factors. The items can either be named as the columns in the data set
-or x1, ..., xn, where 1,...,n correspond to the column numbers}
+to the group factors. The items' names need to equal the column names in the data set,
+aka the variable names}
 
 \item{n.iter}{A number for the iterations of the Gibbs Sampler}
 
@@ -102,6 +102,8 @@ omega_t and omega_h
 When supplying a multidimensional data set
 the function estimates the reliability of the set by means of omega_total
 and the general factor saturation of the set by means of omega_hierarchical.
+The data must follow a simple second-order factor model structure with no crossloadings
+and no error covariances. Otherwise the estimation will fail.
 
 The prior distributions of omega_t and omega_h are computed from
 the prior distributions of the second-order factor model.
@@ -117,19 +119,20 @@ The output contains the posterior distributions of omega_t and omega_h,
 their mean and credible intervals.
 }
 \examples{
-# note that the iterations are set very low for smoother running examples, you should use
-# at least the defaults
-res <- bomegas(upps, n.factors = 5, model = "balanced", n.iter = 200, n.burnin = 50,
-n.chains = 2, missing = "listwise")
-
-# or with specified model syntax relating the group factors to the items:
+# specify the model syntax relating the group factors to the items:
 model <- "f1 =~ U17_r + U22_r + U29_r + U34_r
 f2 =~ U4 + U14 + U19 + U27
 f3 =~ U6 + U16 + U28 + U48
 f4 =~ U23_r + U31_r + U36_r + U46_r
 f5 =~ U10_r + U20_r + U35_r + U52_r"
-res <- bomegas(upps, n.factors = 5, model = model, n.iter = 200, n.burnin = 50,
+# specifying the model can be omitted if the model structure is simple and balanced,
+# meaning the an equal number of items load on each factor, and the items relate to the factors
+# in the same order as they appear in the data.
+# Note that the iterations are set very low for smoother running examples, you should use
+# at least the defaults:
+res <- bomegas(upps, n.factors = 5, model = NULL, n.iter = 200, n.burnin = 50,
 n.chains = 2, missing = "listwise")
+
 
 }
 \references{

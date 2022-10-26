@@ -5,9 +5,7 @@
 #include <math.h>
 #include "declarations.h"
 
-double norm2(n,x)
-     int n;
-     double *x;
+double norm2(int n, double *x)
 {
   double nrm;
   int incx=1;
@@ -29,9 +27,7 @@ double norm2(n,x)
   return(nrm);
 }
 
-double norm1(n,x)
-     int n;
-     double *x;
+double norm1(int n, double *x)
 {
   double nrm;
   int incx=1;
@@ -53,9 +49,7 @@ double norm1(n,x)
   return(nrm);
 }
 
-double norminf(n,x)
-     int n;
-     double *x;
+double norminf(int n, double *x)
 {
   int i;
   double nrm;

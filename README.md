@@ -39,7 +39,8 @@ median(res$Bayes$samp$Bayes_alpha)
 ```
 
 ### Multidimensional data
-This is a basic example which shows you how to compute omega_t and omega_h for an example real data set:
+This is a basic example which shows you how to compute omega_t and omega_h for an example real data set. 
+The data follow a second-order factor model with no crossloadings (required):
 
 ``` r
 library(Bayesrel)
@@ -58,7 +59,7 @@ In the example above we implicitly assumed that the items of the data set were o
 so that, with 5 group factors, the first four items load on the first factor, 
 items 5-8 load on the second factor and so on. When the data is not organized this way and/or the items 
 cannot be distributed among the factors evenly, one can specify a model syntax relating the items 
-to the group factors in lavaan style:
+to the group factors in lavaan style. The item names need to equal the variable names in the data:
 
 ``` r
 model <- "
@@ -69,21 +70,6 @@ model <- "
   f5 =~ U10_r + U20_r + U35_r + U52_r
   "
 ```
-
-The factor names are arbitrary and only need to be distinguishable. 
-Here the item names are the columns names in the data set. Another way to specify the syntax is: 
-
-``` r
-model <- "
-  f1 =~ x1+x2+x3+x4
-  f2 =~ x5+x6+x7+x8
-  f3 =~ x9+x10+x11+x12
-  f4 =~ x13+x14+x15+x16
-  f5 =~ x17+x18+x19+x20
-  "
-```
-Here the manifest variable names can be chosen freely, just note that the numbers need to correspond to the column numbers 
-of the data set. Note that you cannot mix both approaches, the column name and the column number approach.
 
 The reliability is then estimated as follows: 
 

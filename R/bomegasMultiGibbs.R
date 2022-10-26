@@ -7,10 +7,10 @@ omegaMultiB <- function(data, ns, n.iter, n.burnin, n.chains, thin, model, pairw
   n <- nrow(data)
   k <- ncol(data)
 
+  model_opts <- indexMatrix(model, k, ns, colnames(data))
   # ---- get the index matrix aka which items load on which factors ----
-  mod_opts <- indexMatrix(model, k, ns, colnames(data))
-  idex <- mod_opts$idex
-  imat <- mod_opts$imat
+  idex <- model_opts$idex
+  imat <- model_opts$imat
   # ---- check missingsness ----
   inds <- which(is.na(data), arr.ind = TRUE)
   imputed <- array(0, c(n.chains, n.iter, nrow(inds)))
@@ -44,6 +44,7 @@ omegaMultiB <- function(data, ns, n.iter, n.burnin, n.chains, thin, model, pairw
     psis <- array(0, c(n.chains, n.iter, ns))
   }
 
+  ticks <- 1 # for progressbar
   for (ai in 1:n.chains) {
 
     phiw <- diag(1 / rgamma(ns + 1, shape = pars$p0w / 2, scale = 2 / diag(pars$R0winv)))
@@ -104,7 +105,8 @@ omegaMultiB <- function(data, ns, n.iter, n.burnin, n.chains, thin, model, pairw
         }
         imputed[ai, i, ] <- dat_filled[inds]
 
-        pbtick()
+        ticks <- ticks + 1
+        setTxtProgressBar(pbtick, ticks)
       }
 
     } else {
@@ -132,7 +134,8 @@ omegaMultiB <- function(data, ns, n.iter, n.burnin, n.chains, thin, model, pairw
           psis[ai, i, ] <- params$psiw
         }
 
-        pbtick()
+        ticks <- ticks + 1
+        setTxtProgressBar(pbtick, ticks)
       }
     }
   }
@@ -159,11 +162,11 @@ omegaMultiB <- function(data, ns, n.iter, n.burnin, n.chains, thin, model, pairw
     psi_out <- psi_burn[, seq(1, dim(omt_burn)[2], thin), , drop = F]
 
     return(list(omh = omh_out, omt = omt_out, impl_covs = impl_covs_out, imputed_values = imputed,
-                modfile = mod_opts, lambda = lambda_out, beta = beta_out, theta = theta_out, psi = psi_out))
+                modfile = model_opts, lambda = lambda_out, beta = beta_out, theta = theta_out, psi = psi_out))
   }
 
   return(list(omh = omh_out, omt = omt_out, impl_covs = impl_covs_out, imputed_values = imputed,
-              modfile = mod_opts))
+              modfile = model_opts))
 
 }
 

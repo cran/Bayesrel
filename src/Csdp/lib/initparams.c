@@ -5,9 +5,7 @@
 #include <stdio.h>
 #include "declarations.h"
 
-void initparams(params,pprintlevel)
-     struct paramstruc *params;
-     int *pprintlevel;
+void initparams(struct paramstruc *params, int *pprintlevel)
 {
   FILE *paramfile;
 

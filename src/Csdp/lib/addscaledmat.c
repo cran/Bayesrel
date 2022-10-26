@@ -10,11 +10,8 @@
 #include <stdio.h>
 #include "declarations.h"
 
-void addscaledmat(A,scale,B,C)
-     struct blockmatrix A;
-     double scale;
-     struct blockmatrix B;
-     struct blockmatrix C;
+void addscaledmat(struct blockmatrix A, double scale, struct blockmatrix B,
+		  struct blockmatrix C)
 {
   int blk;
   int i,j;

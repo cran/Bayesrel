@@ -224,47 +224,59 @@ int bisect_(int *n, double *eps1, double *d, double *e, double *e2,
 #ifdef  DEFINE_FUNCTIONS_LAPACK_BLAS
 	#ifdef CAPSBLAS
 		#ifdef NOUNDERBLAS
-			double DNRM2();
-			double DASUM();
-			double DDOT();
-			int IDAMAX();
-			void DGEMM();
-			void DGEMV();
-			void DGER();
-			void DTRSM();
-			void DTRMV();
+			double DNRM2(int *n, double *x, int *incx);
+			double DASUM(int *n, double *x, int *incx);
+			double DDOT(int *k, double *a, int *incx, double *y, int *incx2);
+			int IDAMAX(int *n, double *x, int *incx);
+			void DGEMM(char *N1, char *N2, int *n, int *n2, int *n3,
+				double *scale1, double *ap, int *n4, double *bp,
+				int *n5, double *scale2, double *cp, int *n6);
+			void DGEMV(char *N, int *n1, int *n2, double *scale1, double *ap, 
+				int *n3, double *x, int *inc1, double *scale2, double *y, int *inc2);
+			void DGER(void);
+			void DTRSM(void);
+			void DTRMV(void);
 		#else
-			double DNRM2_();
-			double DASUM_();
-			double DDOT_();
-			int IDAMAX_();
-			void DGEMM_();
-			void DGEMV_();
-			void DGER_();
-			void DTRSM_();
-			void DTRMV_();
+			double DNRM2_(int *n, double *x, int *incx);
+			double DASUM_(int *n, double *x, int *incx);
+			double DDOT_(int *k, double *a, int *incx, double *y, int *incx2);
+			int IDAMAX_(int *n, double *x, int *incx);
+			void DGEMM_(char *N1, char *N2, int *n, int *n2, int *n3,
+				double *scale1, double *ap, int *n4, double *bp,
+				int *n5, double *scale2, double *cp, int *n6);
+			void DGEMV_(char *N, int *n1, int *n2, double *scale1, double *ap, 
+				int *n3, double *x, int *inc1, double *scale2, double *y, int *inc2);
+			void DGER_(void);
+			void DTRSM_(void);
+			void DTRMV_(void);
 		#endif
 	#else
 		#ifdef NOUNDERBLAS
-			double dnrm2();
-			double dasum();
-			double ddot();
-			int idamax();
-			void dgemm();
-			void dgemv();
-			void dger();
-			void dtrsm();
-			void dtrmv();
+			double dnrm2(int *n, double *x, int *incx);
+			double dasum(int *n, double *x, int *incx);
+			double ddot(int *k, double *a, int *incx, double *y, int *incx2);
+			int idamax(int *n, double *x, int *incx);
+			void dgemm(char *N1, char *N2, int *n, int *n2, int *n3,
+				double *scale1, double *ap, int *n4, double *bp,
+				int *n5, double *scale2, double *cp, int *n6);
+			void dgemv(char *N, int *n1, int *n2, double *scale1, double *ap, 
+				int *n3, double *x, int *inc1, double *scale2, double *y, int *inc2);
+			void dger(void);
+			void dtrsm(void);
+			void dtrmv(void);
 			#else
-			double dnrm2_();
-			double dasum_();
-			double ddot_();
-			int idamax_();
-			void dgemm_();
-			void dgemv_();
-			void dger_();
-			void dtrsm_();
-			void dtrmv_();
+			double dnrm2_(int *n, double *x, int *incx);
+			double dasum_(int *n, double *x, int *incx);
+			double ddot_(int *k, double *a, int *incx, double *y, int *incx2);
+			int idamax_(int *n, double *x, int *incx);
+			void dgemm_(char *N1, char *N2, int *n, int *n2, int *n3,
+				double *scale1, double *ap, int *n4, double *bp,
+				int *n5, double *scale2, double *cp, int *n6);
+			void dgemv_(char *N, int *n1, int *n2, double *scale1, double *ap, 
+				int *n3, double *x, int *inc1, double *scale2, double *y, int *inc2);
+			void dger_(void);
+			void dtrsm_(void);
+			void dtrmv_(void);
 		#endif
 	#endif
 
@@ -274,27 +286,31 @@ int bisect_(int *n, double *eps1, double *d, double *e, double *e2,
 
 	#ifdef CAPSLAPACK
 		#ifdef NOUNDERLAPACK
-			void DPOTRF();
-			void DPOTRS();
-			void DPOTRI();
-			void DTRTRI();
+			void DPOTRF(char *U, int *n, double *A, int *lda, int *info);
+			void DPOTRS(char *U, int *m, int *incx, double *A, int *ldam1, double *rhs, 
+				int *ldam2, int *info);
+			void DPOTRI(void);
+			void DTRTRI(char *U, char *N, int *n1, double *ap, int *n2, int *info);
 		#else
-			void DPOTRF_();
-			void DPOTRS_();
-			void DPOTRI_();
-			void DTRTRI_();
+			void DPOTRF_(char *U, int *n, double *A, int *lda, int *info);
+			void DPOTRS_(char *U, int *m, int *incx, double *A, int *ldam1, double *rhs, 
+				int *ldam2, int *info);
+			void DPOTRI_(void);
+			void DTRTRI_(char *U, char *N, int *n1, double *ap, int *n2, int *info);
 		#endif
 	#else
 		#ifdef NOUNDERLAPACK
-			void dpotrf();
-			void dpotrs();
-			void dpotri();
-			void dtrtri();
+			void dpotrf(char *U, int *n, double *A, int *lda, int *info);
+			void dpotrs(char *U, int *m, int *incx, double *A, int *ldam1, double *rhs, 
+				int *ldam2, int *info);
+			void dpotri(void);
+			void dtrtri(char *U, char *N, int *n1, double *ap, int *n2, int *info);
 		#else
-			void dpotrf_();
-			void dpotrs_();
-			void dpotri_();
-			void dtrtri_();
+			void dpotrf_(char *U, int *n, double *A, int *lda, int *info);
+			void dpotrs_(char *U, int *m, int *incx, double *A, int *ldam1, double *rhs, 
+				int *ldam2, int *info);
+			void dpotri_(void);
+			void dtrtri_(char *U, char *N, int *n1, double *ap, int *n2, int *info);
 		#endif
 	#endif
 #endif

@@ -2,22 +2,16 @@
 omegaMultiF <- function(data, n.factors, interval, pairwise, model, model.type, fit.measures) {
 
   k <- ncol(data)
-  mod_opts <- indexMatrix(model, k, n.factors, colnames(data))
+  model_opts <- indexMatrix(model, k, n.factors, colnames(data))
 
   if (model.type == "higher-order") {
 
-    if (model == "balanced") {
+    if (is.null(model)) {
       modfile <- lavMultiFileSeco(k, n.factors)
       colnames(data) <- modfile$names
 
     } else { # if model syntax is specified
       modfile <- lavMultiFileSecoSyntax(k, n.factors, model, colnames(data))
-
-      if (!modfile$colnames) { # name the variables in the dataset:
-        names <- unlist(modfile$names)
-        inds <- as.numeric(unlist(regmatches(names, gregexpr("[[:digit:]]+", names))))
-        colnames(data)[inds] <- names
-      }
     }
 
     if (pairwise) {
@@ -29,24 +23,18 @@ omegaMultiF <- function(data, n.factors, interval, pairwise, model, model.type, 
     sts <- lavaan::parameterestimates(fit, level = interval, standardized = TRUE)
     gloads <- sts$std.all[1:n.factors]
     lmat <- matrix(0, k, n.factors)
-    lmat[mod_opts$imat] <- sts$std.all[(n.factors + 1):(n.factors + k)]
+    lmat[model_opts$imat] <- sts$std.all[(n.factors + 1):(n.factors + k)]
     theta <- sts$std.all[(n.factors + k + 2):(n.factors + 2*k + 1)]
     psi <- sts$std.all[(n.factors + 2*k + 2):(2*n.factors + 2*k + 1)]
 
   } else if (model.type == "bi-factor") { # model.type is bifactor
-    if (model == "balanced") {
+    if (is.null(model)) {
 
       modfile <- lavMultiFileBif(k, n.factors)
       colnames(data) <- modfile$names
 
     } else { # if model syntax is specified
       modfile <- lavMultiFileBifSyntax(k, n.factors, model, colnames(data))
-
-      if (!modfile$colnames) { # name the variables in the dataset:
-        names <- unlist(modfile$names)
-        inds <- as.numeric(unlist(regmatches(names, gregexpr("[[:digit:]]+", names))))
-        colnames(data)[inds] <- names
-      }
     }
 
     if (pairwise) {
@@ -58,7 +46,7 @@ omegaMultiF <- function(data, n.factors, interval, pairwise, model, model.type, 
     sts <- lavaan::parameterestimates(fit, level = interval, standardized = TRUE)
     gloads <- sts$std.all[1:k]
     lmat <- matrix(0, k, n.factors)
-    lmat[mod_opts$imat] <- sts$std.all[(k + 1):(2 * k)]
+    lmat[model_opts$imat] <- sts$std.all[(k + 1):(2 * k)]
     psi <- sts$std.all[(2 * k + 2):(2 * k + 1 + n.factors)]
     theta <- sts$std.all[(2 * k + 2 + n.factors):(3 * k + 1 + n.factors)]
 

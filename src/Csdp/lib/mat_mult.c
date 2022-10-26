@@ -16,9 +16,8 @@
 #include <stdio.h>
 #include "declarations.h"
 
-void mat_mult(scale1,scale2,A,B,C)
-     double scale1,scale2;
-     struct blockmatrix A,B,C;
+void mat_mult(double scale1, double scale2, struct blockmatrix A,
+	      struct blockmatrix B, struct blockmatrix C)
 {
   int blk,i,n;
   double *ap;
@@ -82,13 +81,8 @@ void mat_mult(scale1,scale2,A,B,C)
     };
 }
 
-void mat_mult_raw(n,scale1,scale2,ap,bp,cp)
-     int n;
-     double scale1;
-     double scale2;
-     double *ap;
-     double *bp;
-     double *cp;
+void mat_mult_raw(int n, double scale1, double scale2, double *ap,
+		  double *bp, double *cp)
 {
 #ifdef NOUNDERBLAS
 #ifdef CAPSBLAS

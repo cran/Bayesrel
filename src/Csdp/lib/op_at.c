@@ -6,11 +6,8 @@
 #include "declarations.h"
 
 
-void op_at(k,y,constraints,result)
-     int k;
-     double *y;
-     struct constraintmatrix *constraints;
-     struct blockmatrix result;
+void op_at(int k, double *y, struct constraintmatrix *constraints,
+	   struct blockmatrix result)
 {
   int i,j;
 #ifndef BIT64

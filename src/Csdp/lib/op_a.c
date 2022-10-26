@@ -6,11 +6,8 @@
 #include "declarations.h"
 
 
-void op_a(k,constraints,X,result)
-     int k;
-     struct constraintmatrix *constraints;
-     struct blockmatrix X;
-     double *result;
+void op_a(int k, struct constraintmatrix *constraints,
+	  struct blockmatrix X, double *result)
 {
   int i,j;
   int p,q;

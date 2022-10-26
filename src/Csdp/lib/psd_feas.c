@@ -9,12 +9,8 @@
 /*
  * This routine computes the relative primal infeasibility.
  */
-double pinfeas(k,constraints,X,a,workvec)
-     int k;
-     struct constraintmatrix *constraints;
-     struct blockmatrix X;
-     double *a;
-     double *workvec;
+double pinfeas(int k, struct constraintmatrix *constraints,
+	       struct blockmatrix X, double *a, double *workvec)
 {
   double nrme;
   double nrma;
@@ -35,13 +31,9 @@ double pinfeas(k,constraints,X,a,workvec)
 }
 
 
-double dinfeas(k,C,constraints,y,Z,work1)
-     int k;
-     struct blockmatrix C;
-     struct constraintmatrix *constraints;
-     double *y;
-     struct blockmatrix Z;
-     struct blockmatrix work1;
+double dinfeas(int k, struct blockmatrix C, 
+	       struct constraintmatrix *constraints, double *y, 
+	       struct blockmatrix Z, struct blockmatrix work1)
 {
   double nrme;
   double nrmC;
@@ -70,13 +62,9 @@ double dinfeas(k,C,constraints,y,Z,work1)
 
 }
 
-double dimacserr3(k,C,constraints,y,Z,work1)
-     int k;
-     struct blockmatrix C;
-     struct constraintmatrix *constraints;
-     double *y;
-     struct blockmatrix Z;
-     struct blockmatrix work1;
+double dimacserr3(int k, struct blockmatrix C, 
+	       struct constraintmatrix *constraints, double *y, 
+	       struct blockmatrix Z, struct blockmatrix work1)
 {
   double nrme;
 

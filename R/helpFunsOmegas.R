@@ -132,30 +132,15 @@ lavMultiFileSecoSyntax <- function(k, ns, model, colnams) {
   }
 
   imat <- matrix(FALSE, k, ns)
-  if (mod_out$mod_col_names) { # if the data variable names are specified in the modelsyntax
-    idex <- list()
-    lambda_names <- list()
-    names <- list()
-    for (i in seq_len(length(mod))) {
-      tmp_mod <- unlist(strsplit(mod[[i]], " "))
-      idex[[i]] <- which(colnams %in% tmp_mod)
-      imat[idex[[i]], i] <- TRUE
-      lambda_names[[i]] <- paste0("l", i, seq_len(length(idex[[i]])))
-      names[[i]] <- tmp_mod[nchar(tmp_mod) > 0]
-    }
-
-  } else {
-    # get the digits out:
-    out <- regmatches(mod, gregexpr("[[:digit:]]+", mod))
-    idex <- lapply(out, as.numeric)
-    lambda_names <- list()
-    names <- list()
-    for (i in seq_len(length(mod))) {
-      imat[idex[[i]], i] <- TRUE
-      lambda_names[[i]] <- paste0("l", i, seq_len(length(idex[[i]])))
-      tmp <- unlist(strsplit(mod[[i]], " "))
-      names[[i]] <- tmp[nchar(tmp) > 0]
-    }
+  idex <- list()
+  lambda_names <- list()
+  names <- list()
+  for (i in seq_len(length(mod))) {
+    tmp_mod <- unlist(strsplit(mod[[i]], " "))
+    idex[[i]] <- which(colnams %in% tmp_mod)
+    imat[idex[[i]], i] <- TRUE
+    lambda_names[[i]] <- paste0("l", i, seq_len(length(idex[[i]])))
+    names[[i]] <- tmp_mod[nchar(tmp_mod) > 0]
   }
 
   theta_names <- paste("e", 1:k, sep = "")
@@ -192,7 +177,7 @@ lavMultiFileSecoSyntax <- function(k, ns, model, colnams) {
   omega_t <- "omega_t := (g_loading^2 + spec_loading) / (g_loading^2 + spec_loading + residual_var) \n"
   model_out <- paste0(modfile, sl, sum_gl, sum_sl, sum_errs, omega_h, omega_t)
 
-  return(out <- list(names = names, model = model_out, colnames = mod_out$mod_col_names))
+  return(out <- list(names = names, model = model_out))
 }
 
 
@@ -254,30 +239,15 @@ lavMultiFileBifSyntax <- function(k, ns, model, colnams) {
   }
 
   imat <- matrix(FALSE, k, ns)
-  if (mod_out$mod_col_names) { # if the data variable names are specified in the modelsyntax
-    idex <- list()
-    lambda_names <- list()
-    names <- list()
-    for (i in seq_len(length(mod))) {
-      tmp_mod <- unlist(strsplit(mod[[i]], " "))
-      idex[[i]] <- which(colnams %in% tmp_mod)
-      imat[idex[[i]], i] <- TRUE
-      lambda_names[[i]] <- paste0("l", i, seq_len(length(idex[[i]])))
-      names[[i]] <- tmp_mod[nchar(tmp_mod) > 0]
-    }
-
-  } else {
-    # get the digits out:
-    out <- regmatches(mod, gregexpr("[[:digit:]]+", mod))
-    idex <- lapply(out, as.numeric)
-    lambda_names <- list()
-    names <- list()
-    for (i in seq_len(length(mod))) {
-      imat[idex[[i]], i] <- TRUE
-      lambda_names[[i]] <- paste0("l", i, seq_len(length(idex[[i]])))
-      tmp <- unlist(strsplit(mod[[i]], " "))
-      names[[i]] <- tmp[nchar(tmp) > 0]
-    }
+  idex <- list()
+  lambda_names <- list()
+  names <- list()
+  for (i in seq_len(length(mod))) {
+    tmp_mod <- unlist(strsplit(mod[[i]], " "))
+    idex[[i]] <- which(colnams %in% tmp_mod)
+    imat[idex[[i]], i] <- TRUE
+    lambda_names[[i]] <- paste0("l", i, seq_len(length(idex[[i]])))
+    names[[i]] <- tmp_mod[nchar(tmp_mod) > 0]
   }
 
   theta_names <- paste("e", 1:k, sep = "")
@@ -317,18 +287,19 @@ lavMultiFileBifSyntax <- function(k, ns, model, colnams) {
   omega_t <- "omega_t := (g_loading^2 + spec_loading) / (g_loading^2 + spec_loading + residual_var) \n"
   model_out <- paste0(modfile, load_sum, sum_gl, sum_sl, sum_errs, omega_h, omega_t)
 
-  return(list(names = names, model = model_out, colnames = mod_out$mod_col_names))
+  return(list(names = names, model = model_out))
 }
 
 
-indexMatrix <- function(model, k, ns, colnams) {
-  if (model == "balanced") {
+indexMatrix <- function(model = NULL, k, ns, colnams = NULL) {
+  if (is.null(model)) {
     tmp <- matrix(seq(1:k), ns, k/ns, byrow=T)
     imat <- matrix(FALSE, k, ns)
     idex <- as.list(as.data.frame(t(tmp)))
     for (i in 1:ns) {
       imat[tmp[i, ], i] <- TRUE
     }
+    mod_out <- NULL
   } else { # extract variables from model syntax
     mod_out <- modelSyntaxExtract(model, colnams)
     mod <- mod_out$mod
@@ -337,25 +308,22 @@ indexMatrix <- function(model, k, ns, colnams) {
     }
 
     imat <- matrix(FALSE, k, ns)
-    if (mod_out$mod_col_names) { # if the data variable names are specified in the modelsyntax
-      idex <- list()
-      for (i in seq_len(length(mod))) {
-        tmp_mod <- unlist(strsplit(mod[i], " "))
-        idex[[i]] <- which(colnams %in% tmp_mod)
-        imat[idex[[i]], i] <- TRUE
-      }
-
-    } else {
-      # get the digits out:
-      out <- regmatches(mod, gregexpr("[[:digit:]]+", mod))
-      idex <- lapply(out, as.numeric)
-      for (i in seq_len(length(mod))) {
-        imat[idex[[i]], i] <- TRUE
-      }
+    idex <- list()
+    for (i in seq_len(length(mod))) {
+      tmp_mod <- unlist(strsplit(mod[i], " "))
+      idex[[i]] <- which(colnams %in% tmp_mod)
+      imat[idex[[i]], i] <- TRUE
     }
+
+    # # get the digits out:
+    # out <- regmatches(mod, gregexpr("[[:digit:]]+", mod))
+    # idex <- lapply(out, as.numeric)
+    # for (i in seq_len(length(mod))) {
+    #   imat[idex[[i]], i] <- TRUE
+    # }
   }
 
-  return(list(idex = idex, imat = imat))
+  return(list(idex = idex, imat = imat, mod_out = mod_out))
 }
 
 
@@ -363,20 +331,15 @@ modelSyntaxExtract <- function(model, colnams) {
   # get the factor and variable names
   mod_tmp <- unlist(strsplit(model, "[\n]|[=~]|[+]|[ ]"))
   # cleanup
-  mod_names<- mod_tmp[nchar(mod_tmp) > 0]
-  # check if colnames of the data are the varibale names in the syntax
-  if (is.null(colnams)) {
-    mod_col_names <- FALSE
-  } else {
-    if (all(colnams %in% mod_names)) {
-      mod_col_names <- TRUE
-    } else {
-      mod_col_names <- FALSE
-    }
-  }
+  all_names<- mod_tmp[nchar(mod_tmp) > 0]
+  var_names <- unique(all_names[!is.na(match(all_names, colnams))])
 
   # check the number of specified factors by checking the frequency of "=~"
   mod_n.factors <- length(unlist(gregexpr("=~", model)))
+  var_count <- length(unique(all_names)) - mod_n.factors
+  if (var_count > length(var_names)) {
+    warning("It seems some of the item names in the model syntax do not equal the variable names in the data. Check the spelling. This may lead to issues.")
+  }
 
   # cleanup the model to further find the paths
   mod_separated1 <- unlist(strsplit(model, "[\n]|[+]|[ ]"))
@@ -385,8 +348,9 @@ modelSyntaxExtract <- function(model, colnams) {
   mod_separated_tmp2 <- unlist(strsplit(paste(mod_separated2, collapse = " "), "[=~]"))
   mod_separated3 <- mod_separated_tmp2[nchar(mod_separated_tmp2) > 0]
 
-  return(list(mod = mod_separated3, mod_n.factors = mod_n.factors, mod_col_names = mod_col_names,
-              mod_names = mod_names))
+
+
+  return(list(mod = mod_separated3, mod_n.factors = mod_n.factors, var_names = var_names))
 }
 
 

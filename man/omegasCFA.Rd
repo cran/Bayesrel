@@ -7,7 +7,7 @@
 omegasCFA(
   data,
   n.factors,
-  model = "balanced",
+  model = NULL,
   model.type = "higher-order",
   interval = 0.95,
   missing = "fiml",
@@ -20,13 +20,13 @@ rows = observations, columns = variables/items}
 
 \item{n.factors}{A number specifying the number of group factors that the items load on}
 
-\item{model}{A string that by default ("balanced") distributes the items evenly
-among the number of group factors. This only works if the items are a multiple
-of the number of group factors and the items are already grouped in the data set,
+\item{model}{A string that by default NULL (=balanced) distributes the items evenly
+among the number of group factors. This only works if the items are a multiple of
+the number of group factors and the items are already grouped in the data set,
 meaning, e.g., items 1-5 load on one factor, 6-10 on another, and so on.
 A model file can be specified in lavaan syntax style (f1=~.+.+.) to relate the items
-to the group factors. The items can either be named as the columns in the data set
-or x1, ..., xn, where 1,...,n correspond to the column numbers}
+to the group factors. The items' names need to equal the column names in the data set,
+aka the variable names}
 
 \item{model.type}{A string denoting if the model that should be fit is the higher-order or
 bi-factor model. This comes down to the researcher's theory about the measurement
@@ -55,15 +55,15 @@ The CFA is fit using lavaan 'Yves Rosseel', <https://CRAN.R-project.org/package=
 Coefficients omega_t and omega_h can be computed from the factor model parameters.
 }
 \examples{
-res <- omegasCFA(upps, n.factors = 5, model = "balanced", model.type = "bi-factor",
+res <- omegasCFA(upps, n.factors = 5, model = NULL, model.type = "bi-factor",
 missing = "listwise")
 
 # or with specified model syntax relating the group factors to the items:
-model <- "f1 =~ x1+x2+x3+x4
-f2 =~ x5+x6+x7+x8
-f3 =~ x9+x10+x11+x12
-f4 =~ x13+x14+x15+x16
-f5 =~ x17+x18+x19+x20 "
+model <- "f1 =~ U17_r + U22_r + U29_r + U34_r
+f2 =~ U4 + U14 + U19 + U27
+f3 =~ U6 + U16 + U28 + U48
+f4 =~ U23_r + U31_r + U36_r + U46_r
+f5 =~ U10_r + U20_r + U35_r + U52_r"
 res <- omegasCFA(upps, n.factors = 5, model = model, model.type = "higher-order",
 missing = "listwise")
 
