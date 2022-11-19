@@ -1,4 +1,4 @@
-692d38299c7ab13939f535c4475df2f0 *DESCRIPTION
+f3ce487b042dc9e4b56fb3d6db23c4b7 *DESCRIPTION
 cdee72db44f943fbe738993e185a0763 *NAMESPACE
 621a585571b55843599683045bbf6485 *R/RcppExports.R
 0fbf572a064d6500e3343e6dce769acc *R/bomegasMultiGibbs.R
@@ -20,13 +20,13 @@ a14a6baad7ba3cc28126cea7267d949a *R/omegasCFAMultiOut.R
 e76758707003f0d7fe7b038f91b6dfda *R/omegasMultiLavaan.R
 a19549b41caeab369b47233c41adb017 *R/postProb.R
 5580a61821dd8ce72f97d9dc767a94b2 *R/princFac.R
-4dc86ce6c3e074e06f90a7b9402ae001 *R/reliabilityMultiBayes.R
+843ef5f50421dfdaa83e77009a4ebdaa *R/reliabilityMultiBayes.R
 be294adda6715d6a21730a44a209a942 *R/reliabilityMultiFreq.R
 ed1623019a5e5aa2256ef2d57ec89136 *R/reliabilityUni.R
 5e518586d173465a8b6389f9725024d7 *R/samplePrior.R
 a21cfc63149e3466c3f84dbdcf0b53ce *R/uniGibbsOut.R
 4c994dbbc40929ff18b55be111ec0310 *README.md
-1e3ea1e619cafa136f181fa534563451 *build/partial.rdb
+a378ec5ec029fbed49bdcd509c9cc9f0 *build/partial.rdb
 41446d57c9d8054b99e9ea915ee6849e *cleanup
 c1828e39c146426b981b3721a5add89e *configure
 b76a7d97691535ef0a1c5f73f64292a1 *configure.ac
@@ -38,7 +38,7 @@ d26e903e5f9eb575553cc411e0482505 *inst/REFERENCES.bib
 352d012770204ecffa7ee3761697d5a1 *man/Bayesrel-deprecated.Rd
 dd27144bcc869aaacabc0f433d165ffe *man/asrm.Rd
 bb45919b444b404129a3e406e990cc45 *man/asrm_mis.Rd
-e7fab6328aca21e9fb4ac0513d7fabda *man/bomegas.Rd
+9ec87d3f0a15b58e8fe691337f6cdda4 *man/bomegas.Rd
 78f10f1fd6ea63e5174c9bf68547a46a *man/cavalini.Rd
 89494a1c81cba212d22f34a5162ba09e *man/omegaFit.Rd
 36100fadfa2f453016f499e3b1512a00 *man/omega_fit-deprecated.Rd
@@ -50,7 +50,7 @@ f5ff36d2e1fcecb4b7e1bfaa0ef16e9d *man/p_strel-deprecated.Rd
 190bf3322fe7987248a48aad99b3111d *man/secoFit.Rd
 34c9e19ba87d5fbe7a8a8ac7e0531635 *man/seco_fit-deprecated.Rd
 bd4a608a9dc301be45cefab3915538da *man/strel.Rd
-3456ed32467955e78d25d4ea5b53c8b5 *man/upps.Rd
+1341c18a0c3ca08c283b77161ac84afe *man/upps.Rd
 c78c76f8b6e3ed9d7413e0d196227860 *src/BayesrelCpp.cpp
 66640aa35694deed3d879fe88b72708c *src/Csdp/AUTHORS
 9471bfcc56cc13be66b9089633193210 *src/Csdp/INSTALL
@@ -141,8 +141,8 @@ b0a667fa6ddb13c9c5af57a923b55367 *src/Csdp/theta/graphtoprob.c
 05fe43f93ae72eb5f4f6bced0353653b *src/Csdp/theta/rand_graph.c
 c83a85a5562349750e8600439304c5ef *src/Csdp/theta/theta.c
 532cabab1166f57a86d7148e0b2a7217 *src/LowBoundsCpp.cpp
-b2faaa16b883592e95e007909fe367cd *src/Makevars.in
-4e1cb7a4932ce5565d865a15d2087e43 *src/Makevars.win
+8727a57a6ca14700cd74131c0688baa7 *src/Makevars.in
+93e80a894c2bdbd55dde2757e03f9f54 *src/Makevars.win
 315d8090a41632d68304334a9411a6b6 *src/RcppExports.cpp
 9dc3080bc0e21b55c4d316087f91bde9 *src/convertCpp.cpp
 d5e42d0098d3efd946aac816091bad8f *src/customsdp.h

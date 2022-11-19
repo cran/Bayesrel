@@ -52,7 +52,7 @@ aka the variable names}
 \item{thin}{A number for the thinning of the MCMC samples}
 
 \item{interval}{A number specifying the credible interval,
-the interval is the highest posterior desntiy interval (HPD)}
+the interval is the highest posterior density interval (HPD)}
 
 \item{missing}{A string denoting the missing data handling, can be "impute" or "listwise".
 With impute the missing data will be estimated during the MCMC sampling

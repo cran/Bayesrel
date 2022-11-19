@@ -8,7 +8,7 @@
 A dataset consisting of 455 participants who filled out the 20-item short form of
 the UPPS-P, and impulsivity scale, rating from 0 to 4 on a Likert scale.
 The scale has five subscales measured by four items each:
-negative urgency (columns 1-4), perserverance (columns 5-8), premeditation (columns 9-12),
+negative urgency (columns 1-4), perseverance (columns 5-8), premeditation (columns 9-12),
 sensation seeking (columns 13-16), positive urgency (columns 17-20).
 The data contain 13 missing values.}
 
