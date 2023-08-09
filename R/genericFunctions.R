@@ -164,10 +164,17 @@ print.summary.strel <- function(x, ...) {
 
 #'@export
 print.bomegas <- function(x, ...) {
+
   # prepare output matrix
-  out <- rbind(as.numeric(sprintf("%.5f", c(x$omega_t$mean, x$omega_t$cred))),
-               as.numeric(sprintf("%.5f", c(x$omega_h$mean, x$omega_h$cred))))
-  rownames(out) <- c("omega_t", "omega_h")
+  if (x$model.type != "correlated") {
+    out <- rbind(as.numeric(sprintf("%.5f", c(x$omega_t$mean, x$omega_t$cred))),
+                 as.numeric(sprintf("%.5f", c(x$omega_h$mean, x$omega_h$cred))))
+    rownames(out) <- c("omega_t", "omega_h")
+  } else {
+    out <- matrix(as.numeric(sprintf("%.5f", c(x$omega_t$mean, x$omega_t$cred))), ncol = 3)
+    rownames(out) <- "omega_t"
+  }
+
   colnames(out) <- c("posterior mean", paste0(x$interval * 100, "% CI lower"),
                       paste0(x$interval * 100, "% CI upper"))
 
@@ -185,9 +192,15 @@ print.bomegas <- function(x, ...) {
 #'@export
 print.omegasCFA <- function(x, ...) {
   # prepare output matrix
-  out <- rbind(as.numeric(sprintf("%.5f", c(x$omega_t$est, x$omega_t$conf))),
-               as.numeric(sprintf("%.5f", c(x$omega_h$est, x$omega_h$conf))))
-  rownames(out) <- c("omega_t", "omega_h")
+  if (x$model.type != "correlated") {
+    out <- rbind(as.numeric(sprintf("%.5f", c(x$omega_t$est, x$omega_t$conf))),
+                 as.numeric(sprintf("%.5f", c(x$omega_h$est, x$omega_h$conf))))
+    rownames(out) <- c("omega_t", "omega_h")
+  } else {
+    out <- matrix(as.numeric(sprintf("%.5f", c(x$omega_t$est, x$omega_t$conf))), ncol = 3)
+    rownames(out) <- "omega_t"
+  }
+
   colnames(out) <- c("point est", paste0(x$interval * 100, "% CI lower"),
                       paste0(x$interval * 100, "% CI upper"))
 
@@ -216,8 +229,10 @@ print.omegasCFA <- function(x, ...) {
 }
 
 #'@export
-print.secoFit <- function(x, ...) {
+print.multiFit <- function(x, ...) {
+
   out <- list(LR = x$LR, BSRMR = x$srmr_pointEst, BRMSEA = x$rmsea_pointEst,
-              BRMSEA_90_CI = x$rmsea_ci, BRMSEA_p.05 = x$p_rmsea)
+              BRMSEA_90_CI = x$rmsea_ci, x$p_rmsea)
+  names(out)[5] <- paste0("p(BRMSEA<", x$rmsea_cut, ")")
   print(out)
 }

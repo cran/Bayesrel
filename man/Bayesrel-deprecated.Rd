@@ -6,6 +6,7 @@
 \alias{seco_fit}
 \alias{p_strel}
 \alias{p_omegas}
+\alias{secoFit}
 \title{Deprecated functions in package \pkg{Bayesrel}.}
 \usage{
 omega_fit(x, data, ppc = TRUE, cutoff = 0.08, ci = 0.9)
@@ -15,6 +16,8 @@ seco_fit(x, data, ppc = TRUE, cutoff = 0.08, ci = 0.9)
 p_strel(x, estimate, low.bound)
 
 p_omegas(x, cutoff.t = 0.8, cutoff.h = 0.6)
+
+secoFit(x, data, ppc = TRUE, cutoff = 0.08, ci = 0.9)
 }
 \description{
 The functions listed below are deprecated and will be defunct in
@@ -29,7 +32,7 @@ For \code{omega_fit}, use \code{\link{omegaFit}}.
 
 \section{\code{seco_fit}}{
 
-For \code{seco_fit}, use \code{\link{secoFit}}.
+For \code{seco_fit}, use \code{\link{multiFit}}.
 }
 
 \section{\code{p_strel}}{
@@ -40,6 +43,11 @@ For \code{p_strel}, use \code{\link{pStrel}}.
 \section{\code{p_omegas}}{
 
 For \code{p_omegas}, use \code{\link{pOmegas}}.
+}
+
+\section{\code{secoFit}}{
+
+For \code{secoFit}, use \code{\link{multiFit}}.
 }
 
 \keyword{internal}

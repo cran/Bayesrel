@@ -1,23 +1,26 @@
 
-#' Estimate Bayesian reliability estimates for multidimensional scales following a second-order factor model
+#' Estimate Bayesian reliability estimates for multidimensional scales following common factor models
 #' @description When supplying a multidimensional data set
 #' the function estimates the reliability of the set by means of omega_total
 #' and the general factor saturation of the set by means of omega_hierarchical.
-#' The data must follow a simple second-order factor model structure with no crossloadings
-#' and no error covariances. Otherwise the estimation will fail.
+#' The data may follow multiple multi-factorial factor models:
+#' a) the second-order factor model (crossloadings possible),
+#' b) the bi-factor model (no crossloadings),
+#' c) the correlated factor model (crossloadings possible, only omega_t)
+#' Error-covariances are not estimable.
 #'
 #' The prior distributions of omega_t and omega_h are computed from
-#' the prior distributions of the second-order factor model.
-#' Specifically, a multivariate normal distribution for the group factor loadings and
-#' the factor scores; a normal distribution for the general factor loadings;
+#' the prior distributions of the respective factor model parameters.
+#' Specifically, normal distributions for the factor loadings and factor scores;
 #' an inverse gamma distribution for the manifest and latent residuals;
-#' an inverse Wishart distribution for the covariance matrix of the latent variables.
+#' an inverse Wishart distribution for the covariance matrix of the latent variables (correlated model).
 #' A Gibbs sampler iteratively draws samples from the conditional posterior distributions
-#' of the second-order factor model parameters. The posterior distributions of omega_t
+#' of the factor model parameters. The posterior distributions of omega_t
 #' and omega_h are computed from the posterior samples of the factor model parameters.
 #'
-#' The output contains the posterior distributions of omega_t and omega_h,
-#' their mean and credible intervals.
+#' The output contains the posterior distributions of omega_t and omega_h (only for second-order and bi-factor model),
+#' their mean, and credible intervals. If desired, one may also find the posterior implied covariance matrices,
+#' and the posterior factor model parameters in the output.
 #' @param data A matrix or data.frame containing multivariate observations,
 #' rows = observations, columns = variables/items
 #' @param n.factors A number specifying the number of group factors that the items load on
@@ -28,6 +31,8 @@
 #' A model file can be specified in lavaan syntax style (f1=~.+.+.) to relate the items
 #' to the group factors. The items' names need to equal the column names in the data set,
 #' aka the variable names
+#' @param model.type A string indicating the factor model estimated, by default this is the "second-order" model.
+#' Another option is the "bi-factor" model; and eventually "correlated" for the correlated factor model
 #' @param n.iter A number for the iterations of the Gibbs Sampler
 #' @param n.burnin A number for the burnin in the Gibbs Sampler
 #' @param n.chains A number for the chains to run for the MCMC sampling
@@ -38,32 +43,36 @@
 #' With impute the missing data will be estimated during the MCMC sampling
 #' as further unknown parameters
 #' @param a0 A number for the shape of the prior inverse gamma distribution for the manifest residual variances,
-#' by default 2
+#' when left as NA, the default value is set to 2
 #' @param b0 A number for the scale of the prior inverse gamma distribution for the manifest residual variances,
-#' by default 1
+#' when left as NA, the default value is set to 1
 #' @param l0 A number for the mean of the prior normal distribution for the manifest loadings,
-#' by default 0, can be a single value or a loading matrix
+#' when left as NA, the default value is set to 0; can be a single value or a loading matrix
 #' @param A0 A number for scaling the variance of the prior normal distribution for the manifest loadings,
-#' by default 1
+#' when left as NA, the default value is set to 1
 #' @param c0 A number for the shape of the prior inverse gamma distribution for the latent residual variances,
-#' by default 2
+#' when left as NA, the default value is set to 2; necessary only for the second-order model
 #' @param d0 A number for the scale of the prior inverse gamma distribution for the latent residual variances,
-#' by default 1
-#' @param beta0 A number for the mean of the prior normal distribution for the latent loadings,
-#' by default 0, can be a single value or a vector
-#' @param B0 A number for scaling the variance of the prior normal distribution for the latent loadings,
-#' by default 1
+#' when left as NA, the default value is set to 1, necessary only for the second-order model
+#' @param beta0 A number for the mean of the prior normal distribution for the g-factor loadings,
+#' when left as NA, the default value is set to 0, can be a single value or a vector
+#' @param B0 A number for scaling the variance of the prior normal distribution for the g-factor loadings,
+#' when left as NA, the default value is set to 2.5
 #' @param p0 A number for the shape of the prior inverse gamma distribution for the variance of the g-factor,
-#' by default set to q^2-q when q are the number of group factors
+#' when left as NA, the default value is set to q^2-q when q are the number of group factors for the second-order
+#' and bi-factor model
 #' @param R0 A number for the scale of the prior inverse gamma distribution for the variance of the g-factor,
-#' by default set to the number of items
+#' when left as NA, the default value is set to the number of items for the second-order
+#' and bi-factor model
 #' @param param.out A logical indicating if loadings and residual variances should be attached to the result,
 #' by default FALSE because it saves memory
 #' @param callback An empty function for implementing a progressbar call
 #' from a higher program (e.g., JASP)
+#' @param disableMcmcCheck A logical disabling the MCMC settings check for running tests and the likes
+#'
 #'
 #' @return The posterior means and the highest posterior density intervals for
-#' omega_t and omega_h
+#' omega_t and omega_h (for the second-order and bi-factor model)
 #'
 #' @examples
 #' # specify the model syntax relating the group factors to the items:
@@ -78,7 +87,7 @@
 #' # Note that the iterations are set very low for smoother running examples, you should use
 #' # at least the defaults:
 #' res <- bomegas(upps, n.factors = 5, model = NULL, n.iter = 200, n.burnin = 50,
-#' n.chains = 2, missing = "listwise")
+#' n.chains = 2, missing = "listwise", model.type = "second-order")
 #'
 
 #'
@@ -89,35 +98,64 @@
 #'}
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar
+#' @importFrom stats cov2cor
+#'
 #' @export
 bomegas <- function(
   data,
-  n.factors,
+  n.factors = NULL,
   model = NULL,
+  model.type = "second-order",
   n.iter = 2e3,
   n.burnin = 200,
   n.chains = 3,
   thin = 1,
   interval = .95,
   missing = "impute",
-  a0 = 2, b0 = 1,
-  l0 = 0, A0 = 1,
-  c0 = 2, d0 = 1,
-  beta0 = 0, B0 = 2.5,
-  p0 = NULL, R0 = NULL,
+  a0 = NA,
+  b0 = NA,
+  l0 = NA,
+  A0 = NA,
+  c0 = NA,
+  d0 = NA,
+  beta0 = NA,
+  B0 = NA,
+  p0 = NA,
+  R0 = NA,
   param.out = FALSE,
-  callback = function(){}
+  callback = function(){},
+  disableMcmcCheck = FALSE
 ) {
+
+  # check mcmc settings
+  if (!disableMcmcCheck) {
+    checkMcmcSettings(n.iter, n.burnin, n.chains, thin)
+  }
 
   # make sure only the data referenced in the model file is used, if a model file is specified
   if (!is.null(model)) {
     mod_opts <- modelSyntaxExtract(model, colnames(data))
-    data <- data[, mod_opts$var_names]
+    data <- data[, colnames(data) %in% mod_opts$var_names]
+    n.factors <- mod_opts$mod_n.factors
+  } else {
+    if (is.null(n.factors)) {
+      stop("The number of factors needs to be specified when no model file is provided.")
+    }
   }
+
+  # check model.type string
+  if (!(model.type %in% c("bi-factor", "bifactor", "second-order", "correlated", "secondorder", "hierarchical",
+                          "secondOrder", "biFactor"))) {
+    stop("model.type invalid; needs to be 'bi-factor', 'second-order', or 'correlated'")
+  }
+
+  if (model.type %in% c("bifactor", "biFactor")) model.type <- "bi-factor"
+  if (model.type %in% c("secondorder", "hierarchical", "secondOrder")) model.type <- "second-order"
+
 
   # deal with missings
   listwise <- FALSE
-  pairwise <- FALSE
+  impute <- FALSE
   complete_cases <- nrow(data)
   if (anyNA(data)) {
     if (missing == "listwise") {
@@ -127,30 +165,45 @@ bomegas <- function(
       complete_cases <- ncomp
       listwise <- TRUE
     } else { # missing is impute
-      pairwise <- TRUE
+      impute <- TRUE
     }
   }
 
   data <- scale(data, scale = FALSE)
 
-  if (is.null(p0)) p0 <- n.factors^2 - n.factors
-  if (is.null(R0)) R0 <- ncol(data)
+  # handle the prior hyperparameters
+  if (model.type != "correlated") {
+    defaults <- list(a0 = 2, b0 = 1, c0 = 2, d0 = 1, l0 = 0, A0 = 1, beta0 = 0, B0 = 2.5,
+                     p0 = n.factors^2 - n.factors, R0 = ncol(data))
+  } else {
+    defaults <- list(a0 = 2, b0 = 1, c0 = 2, d0 = 1, l0 = 0, A0 = 1, beta0 = 0, B0 = 2.5,
+                     p0 = n.factors + 2, R0 = matrix(n.factors, n.factors, n.factors))
+    diag(defaults[["R0"]]) <- ncol(data)
+
+  }
+
+  set <- list(a0, c0, b0, d0, l0, A0, beta0, B0, p0, R0)
+  prior.params <- ifelse(is.na(set), defaults, set)
+  names(prior.params) <- names(defaults)
 
   pb <- txtProgressBar(max = n.chains * n.iter, style = 3)
+
   sum_res <- bomegasMultiOut(data, n.factors, n.iter, n.burnin, thin, n.chains,
-                             interval, model, pairwise, a0, b0, l0, A0, c0, d0, beta0, B0, p0, R0,
-                             param.out, callback, pbtick = pb)
+                             interval, model, impute, prior.params,
+                             param.out, callback, pbtick = pb, model.type = model.type)
   close(pb)
+
 
   sum_res$complete_cases <- complete_cases
   sum_res$call <- match.call()
   sum_res$k <- ncol(data)
   sum_res$n.factors <- n.factors
-  sum_res$pairwise <- pairwise
+  sum_res$impute <- impute
   sum_res$listwise <- listwise
   sum_res$interval <- interval
-  sum_res$prior_params <- list(a0 = a0, b0 = b0, l0 = l0, A0 = A0, c0 = c0, d0 = d0,
-                               beta0 = beta0, B0 = B0, p0 = p0, R0 = R0)
+  sum_res$prior_params <- prior.params
+  sum_res$model.type <- model.type
+
   class(sum_res) <- "bomegas"
 
   return(sum_res)

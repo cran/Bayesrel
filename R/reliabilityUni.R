@@ -44,6 +44,7 @@
 #' @param b0 The scale parameter of the inverse gamma prior distribution for the residual
 #' variances in the single factor model for omega
 #' @param m0 The prior mean of the normal distribution on the factor loadings for omega
+#' @param disableMcmcCheck A logical disabling the MCMC settings check for running tests and the likes
 #'
 #' @details Reported are point estimates (posterior mean), Bayesian credible intervals
 #' (highest posterior density) and frequentist confidence intervals
@@ -89,7 +90,7 @@
 #' # you should use the defaults at least
 #' summary(strel(asrm, estimates = "lambda2", n.chains = 2, n.iter = 200, n.boot = 200))
 #' summary(strel(asrm, estimates = "lambda2", item.dropped = TRUE, n.chains = 2,
-#' n.iter = 100, n.boot = 200))
+#' n.iter = 200, freq = FALSE))
 #'
 #'
 #' @references{
@@ -135,7 +136,8 @@ strel <- function(data = NULL,
                   df0 = NULL,
                   a0 = 2,
                   b0 = 1,
-                  m0 = 0) {
+                  m0 = 0,
+                  disableMcmcCheck = FALSE) {
 
   default <- c("alpha", "lambda2", "lambda4", "lambda6", "glb", "omega")
   mat <- match(default, estimates)
@@ -178,6 +180,11 @@ strel <- function(data = NULL,
   data <- scale(data, scale = FALSE) # needed for Bayes omega
 
   if (Bayes) {
+    if (!disableMcmcCheck) {
+      checkMcmcSettings(n.iter, n.burnin, n.chains, thin)
+    }
+
+    if (is.null(df0)) df0 <- ncol(data)
     sum_res$Bayes <- gibbsFun(data, estimates, n.iter, n.burnin, thin, n.chains, interval, item.dropped, pairwise,
                               callback, k0, df0, a0, b0, m0)
     sum_res$n.iter <- n.iter

@@ -29,7 +29,8 @@ strel(
   df0 = NULL,
   a0 = 2,
   b0 = 1,
-  m0 = 0
+  m0 = 0,
+  disableMcmcCheck = FALSE
 )
 }
 \arguments{
@@ -96,6 +97,8 @@ variances in the single factor model for omega}
 variances in the single factor model for omega}
 
 \item{m0}{The prior mean of the normal distribution on the factor loadings for omega}
+
+\item{disableMcmcCheck}{A logical disabling the MCMC settings check for running tests and the likes}
 }
 \value{
 The basic output displays the interval bounds of the coefficients,
@@ -148,7 +151,7 @@ is of dimension one) and the sum k+2 as the degrees of freedom.
 # you should use the defaults at least
 summary(strel(asrm, estimates = "lambda2", n.chains = 2, n.iter = 200, n.boot = 200))
 summary(strel(asrm, estimates = "lambda2", item.dropped = TRUE, n.chains = 2,
-n.iter = 100, n.boot = 200))
+n.iter = 200, freq = FALSE))
 
 
 }

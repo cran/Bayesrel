@@ -67,7 +67,6 @@ preCompCovParams <- function(data, k0, df0) {
   p <- ncol(data)
   # posterior covariance matrix ---------------------------------------------------
   k0 <- k0
-  if (is.null(df0)) df0 <- p
   t <- diag(p)
   T0 <- diag(k0, nrow = p, ncol = p) # matrix inversion of diagonal matrix
   mu0 <- rep(0, p) # prior means

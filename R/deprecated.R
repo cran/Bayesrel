@@ -145,8 +145,6 @@ omega_fit <- function(x, data, ppc = TRUE, cutoff = .08, ci = .90) {
 }
 
 
-
-
 #' model fit for the second-order factor model,
 #' @description
 #' Fit indices and posterior predictive check for the higher-factor model:
@@ -179,11 +177,11 @@ NULL
 #'
 #' @rdname Bayesrel-deprecated
 #' @section \code{seco_fit}:
-#' For \code{seco_fit}, use \code{\link{secoFit}}.
+#' For \code{seco_fit}, use \code{\link{multiFit}}.
 #'
 #' @export
 seco_fit <- function(x, data, ppc = TRUE, cutoff = .08, ci = .90) {
-  .Deprecated("secoFit")
+  .Deprecated("multiFit")
 
   data <- scale(data, scale = FALSE)
 
@@ -338,10 +336,7 @@ p_omegas <- function(x, cutoff.t = .80, cutoff.h = .60) {
   post_prob_h <- 1 - objh(cutoff.h)
 
   # prior prob
-  priors <- omegasPrior(x$k, x$n.factors, nsamp = 2e3, x$prior_params$a0, x$prior_params$b0,
-                        x$prior_params$l0, x$prior_params$A0,
-                        x$prior_params$c0, x$prior_params$d0,
-                        x$prior_params$beta0, x$prior_params$B0)
+  priors <- omegasSecoPrior(x, nsamp = 2e3)
 
   priort <- ecdf(priors$omt_prior)
   priorh <- ecdf(priors$omh_prior)
@@ -356,5 +351,113 @@ p_omegas <- function(x, cutoff.t = .80, cutoff.h = .60) {
   return(out)
 }
 
+
+#' model fit for the second-order factor model,
+#' @description
+#' Fit indices and posterior predictive check for the higher-factor model:
+#' comparison between posterior sample of model implied covariance matrices
+#' and sample covariance matrix. Gray bars should enclose the black dots for good fit.
+#' Also prints fit indices, LR (likelihood-ratio), RMSEA, SRMR.
+#' The RMSEA is from Garnier-Villareal & Jorgensen (2020)
+#'
+#' @param x A bomegas output object (list)
+#' @param data A matrix or data.frame containing the data set that produced x
+#' @param ppc A logical indicating if the PPC should be printed or not,
+#' the default is TRUE
+#' @param cutoff A value to compare the posterior sample of RMSEAs against.
+#' The result will contain the probability that the RMSEA is smaller than the
+#' cutoff value
+#' @param ci A value between 0 and 1 indicating the credible interval for the RMSEA
+#'
+#'
+#' @references{
+#' \insertRef{Garnier-Villarreal2020AdaptingFitIndices}{Bayesrel}
+#' }
+#'
+#' @importFrom stats complete.cases
+#'
+#' @name secoFit-deprecated
+#' @usage secoFit(x, data, ppc = TRUE, cutoff = .08, ci = .90)
+#' @seealso \code{\link{Bayesrel-deprecated}}
+#' @keywords internal
+NULL
+#'
+#' @rdname Bayesrel-deprecated
+#' @section \code{secoFit}:
+#' For \code{secoFit}, use \code{\link{multiFit}}.
+#' @export
+secoFit <- function(x, data, ppc = TRUE, cutoff = .08, ci = .90) {
+  .Deprecated("multiFit")
+
+  data <- scale(data, scale = FALSE)
+
+  if (x$pairwise) {
+    sigma <- cov(data, use = "pairwise.complete.obs")
+    n.data <- nrow(data)
+  } else {
+    sigma <- cov(data, use = "complete.obs")
+    n.data <- nrow(data[complete.cases(data),])
+  }
+
+  if (ppc) {
+    # PPC plot
+    nsamp <- dim(x$implCovs)[1]
+    ee_impl <- matrix(0, nsamp, ncol(sigma))
+    for (i in 1:nsamp) {
+      ctmp <-x$implCovs[i, , ]
+      dtmp <- MASS::mvrnorm(n.data, rep(0, ncol(sigma)), ctmp)
+      ee_impl[i, ] <- eigen(cov(dtmp), only.values = TRUE)$values
+    }
+    qq_ee_low <- apply(ee_impl, 2, quantile, prob = .025)
+    qq_ee_up <- apply(ee_impl, 2, quantile, prob = .975)
+
+    ymax <- max(ee_impl, eigen(sigma, only.values = TRUE)$values)
+
+    par(mar=c(5.1, 4.5, 0.7, 2.1))
+    plot(eigen(sigma)$values, axes = F, ylim = c(0, ymax), pch = 8, cex = 0, xlab = "", ylab = "")
+
+    arrows(x0 = seq_len(ncol(sigma)), x1 = seq_len(ncol(sigma)), y0 = qq_ee_low, y1 = qq_ee_up,
+           col = "gray55", angle = 90, code = 3, length = .06, lwd = 2.5)
+
+    lines(eigen(sigma)$values, type = "p", pch = 8, cex =.7)
+    axis(side = 1, at = seq_len(ncol(sigma)), cex.axis = 1.4)
+    axis(side = 2, las = 1, cex.axis = 1.4)
+    title(xlab = "Eigenvalue No.", ylab = "Eigenvalue", cex.lab = 1.4)
+
+    legend(ncol(sigma) / 3 * 1.1, ymax  *(2 / 3),
+           legend = c("Dataset Covariance Matrix", "Model Implied Covariance Matrices"),
+           col=c("black", "gray50"), box.lwd = .7, lty = c(0, 1), lwd = c(1, 2.5), pch = c(8, 0), cex = 1.2,
+           pt.cex = c(1, 0))
+  }
+
+  #### fit indices ###
+  n <- n.data
+  k <- ncol(data)
+  pstar <- k * (k + 1) / 2 # unique elements in the covariance matrix, variances + covariances
+  implieds <- x$implCovs
+
+  ### Chisqs ###
+  LL1 <- sum(dmultinorm(data, sigma)) # loglikelihood saturated model
+  LR_obs <- apply(implieds, 1, LRblav, data = data, basell = LL1) # loglikelihoods tested model
+
+  implM <- apply(implieds, c(2, 3), mean) # mean model implied matrix
+  Dtm <- LRblav(data, implM, LL1) # deviance of the mean model implied cov matrix
+
+  Dm <- mean(LR_obs) # mean deviance of the model implied cov matrices
+  pD <- Dm - Dtm # effective number of parameters (free parameters)
+  rmsea <- BRMSEA(LR_obs, pstar, pD, n)
+  srmr_m <- SRMR(sigma, implM)
+  srmr <- apply(implieds, 1, SRMR, cdat = sigma)
+
+  prob <- mean(rmsea < cutoff)
+
+  rmsea_ci <- as.numeric(coda::HPDinterval(coda::mcmc(rmsea), prob = ci))
+  names(rmsea_ci) <- paste0(ci*100, "% ",  c("lower", "upper"))
+  out <- list(LR = Dtm, srmr_pointEst = srmr_m, srmr_samp = srmr, rmsea_pointEst = mean(rmsea),
+              rmsea_ci = rmsea_ci, p_rmsea = prob, rmsea_samp = rmsea)
+
+  class(out) <- "secoFit"
+  return(out)
+}
 
 

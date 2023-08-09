@@ -19,5 +19,6 @@ and calculates the prior and posterior probability of the estimate being bigger
 or smaller than an arbitrary value (priors are stored in the package)
 }
 \examples{
-pStrel(strel(asrm, "lambda2", n.chains = 2, n.iter = 100, freq = FALSE), "lambda2", .80)
+pStrel(strel(asrm, "lambda2", n.chains = 2, n.iter = 150, freq = FALSE),
+"lambda2", .80)
 }

@@ -2,12 +2,12 @@
 % Please edit documentation in R/postProb.R
 \name{pOmegas}
 \alias{pOmegas}
-\title{prior and posterior probability of omega_t and omega_h being bigger than thresholds}
+\title{prior and posterior probability of omega_t and omega_h being larger than thresholds}
 \usage{
 pOmegas(x, cutoff.t = 0.8, cutoff.h = 0.6)
 }
 \arguments{
-\item{x}{A strel output object (list)}
+\item{x}{A bomegas output object (list)}
 
 \item{cutoff.t}{A number indicating the threshold for omega_t}
 
@@ -19,6 +19,6 @@ and calculates the prior and posterior probability of the estimate being bigger
 or smaller than an arbitrary value
 }
 \examples{
-pOmegas(bomegas(upps, n.factors = 5, n.chains = 2, n.iter = 100, n.burnin = 50,
-missing = "listwise"))
+pOmegas(bomegas(upps, n.factors = 5, n.chains = 2, n.iter = 150, n.burnin = 50,
+disableMcmcCheck = TRUE, missing = "listwise"))
 }

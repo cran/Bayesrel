@@ -6,9 +6,9 @@
 \usage{
 omegasCFA(
   data,
-  n.factors,
+  n.factors = NULL,
   model = NULL,
-  model.type = "higher-order",
+  model.type = "second-order",
   interval = 0.95,
   missing = "fiml",
   fit.measures = FALSE
@@ -28,13 +28,14 @@ A model file can be specified in lavaan syntax style (f1=~.+.+.) to relate the i
 to the group factors. The items' names need to equal the column names in the data set,
 aka the variable names}
 
-\item{model.type}{A string denoting if the model that should be fit is the higher-order or
-bi-factor model. This comes down to the researcher's theory about the measurement
-and the model fit}
+\item{model.type}{A string denoting if the model that should be fit is the second-order or
+bi-factor model or the correlated factor model. This comes down to the researcher's theory about the measurement
+and the model fit.}
 
 \item{interval}{A number specifying the confidence interval, which is Wald-type}
 
-\item{missing}{A string denoting the missing data handling, can be "fiml" (full information ML) or "listwise".}
+\item{missing}{A string denoting the missing data handling, can be "fiml" (full information ML) or "listwise".
+Specifying "pairwise" will defulat to "fiml"}
 
 \item{fit.measures}{A logical denoting if fit.measures from the CFA should be computed,
 the output then contains the chisq statistic, chisq df, chisq p-value, cfi, tli,
@@ -43,16 +44,17 @@ unbiased srmr, unbiased srmr 90\% ci lower, unbiased srmr 90\% ci upper, unbiase
 }
 \value{
 The point estimates and the Wald-type confidence intervals for
-omega_t and omega_h
+omega_t and omega_h (for the second-order and bi-factor model)
 }
 \description{
 When supplying a data set that is multidimensional
 the function estimates the reliability of the set by means of omega_total
 and the general factor saturation of the set by means of omega_hierarchical
 The procedure entails fitting a hierarchical factor model using a CFA.
-Both the higher-order (second-order) and the bi-factor model can be used in the CFA.
-The CFA is fit using lavaan 'Yves Rosseel', <https://CRAN.R-project.org/package=lavaan>.
-Coefficients omega_t and omega_h can be computed from the factor model parameters.
+The second-order (hierarchical, higher-order), the bi-factor, and the correlated factor model
+can be used in the CFA. The CFA is performed using lavaan 'Yves Rosseel', <https://CRAN.R-project.org/package=lavaan>.
+Coefficients omega_t and omega_h (only for second-order and bi-factor model)
+can be computed from the factor model parameters.
 }
 \examples{
 res <- omegasCFA(upps, n.factors = 5, model = NULL, model.type = "bi-factor",
@@ -64,7 +66,7 @@ f2 =~ U4 + U14 + U19 + U27
 f3 =~ U6 + U16 + U28 + U48
 f4 =~ U23_r + U31_r + U36_r + U46_r
 f5 =~ U10_r + U20_r + U35_r + U52_r"
-res <- omegasCFA(upps, n.factors = 5, model = model, model.type = "higher-order",
+res <- omegasCFA(upps, n.factors = 5, model = model, model.type = "second-order",
 missing = "listwise")
 
 }
